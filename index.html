@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neximed — Demo Interactiva</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0D1117;
+    font-family: -apple-system, "SF Pro Rounded", "Segoe UI", sans-serif;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+  }
+  h1 { font-size: 22px; margin: 12px 0 4px; color: #00D2FF; }
+  .subtitle { font-size: 13px; color: #8b949e; margin-bottom: 16px; text-align: center; }
+  .phone {
+    width: 390px; height: 800px;
+    background: #0D1117;
+    border-radius: 40px;
+    border: 3px solid #30363D;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  }
+  .screen { width: 100%; height: 100%; position: relative; display: none; flex-direction: column; }
+  .screen.active { display: flex; }
+  .screen img.hero { width: 100%; height: 55%; object-fit: cover; }
+  .screen .content { padding: 20px; flex: 1; overflow-y: auto; }
+  .screen h2 { font-size: 20px; margin-bottom: 8px; }
+  .screen p { font-size: 14px; color: #c9d1d9; line-height: 1.5; }
+  .btn {
+    display: block; width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #00D2FF, #8A2BE2);
+    border: none; border-radius: 16px; color: #fff;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    margin-top: 12px;
+  }
+  .btn.secondary { background: #21262D; }
+  .btn.small { padding: 10px; font-size: 13px; margin-top: 6px; }
+  .tabbar {
+    display: flex; justify-content: space-around; padding: 10px 8px;
+    background: rgba(33,38,45,0.95); border-top: 1px solid #30363D;
+    position: absolute; bottom: 0; width: 100%;
+  }
+  .tab { display: flex; flex-direction: column; align-items: center; font-size: 9px; color: #8b949e; cursor: pointer; gap: 2px; }
+  .tab.active { color: #00D2FF; }
+  .tab span:first-child { font-size: 18px; }
+  .metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .metric { background: #161B22; border-radius: 16px; padding: 14px; border: 1px solid #30363D; }
+  .metric .label { font-size: 11px; color: #8b949e; }
+  .metric .value { font-size: 24px; font-weight: 800; margin-top: 4px; }
+  .metric .unit { font-size: 12px; color: #8b949e; }
+  .back { position: absolute; top: 12px; left: 14px; background: none; border: none; color: #00D2FF; font-size: 15px; cursor: pointer; z-index: 10; }
+  .statusbar { height: 44px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 8px; font-size: 12px; color: #8b949e; }
+  .chip { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 12px; margin: 3px; border: 1px solid #00D2FF33; color: #00D2FF; }
+  .chip.red { border-color: #FF5E62; color: #FF5E62; }
+  .card { background: #161B22; border-radius: 16px; padding: 14px; margin-top: 10px; border: 1px solid #30363D; }
+  .card h3 { font-size: 14px; color: #fff; margin-bottom: 6px; }
+  .card p { font-size: 12px; color: #c9d1d9; }
+  .row { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #21262D; }
+  .row:last-child { border-bottom: none; }
+  .badge { background: #FF5E6222; color: #FF5E62; font-size: 10px; padding: 3px 8px; border-radius: 10px; }
+  .badge.green { background: #2ECC7122; color: #2ECC71; }
+  .nav { display: flex; justify-content: space-between; margin-top: 12px; }
+  .dots { display: flex; gap: 6px; justify-content: center; margin-top: 10px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: #30363D; }
+  .dot.active { background: #00D2FF; }
+</style>
+</head>
+<body>
+<h1>🧬 NEXIMED</h1>
+<p class="subtitle">Demo interactiva — Tu cuaderno clínico personal, 100% on-device</p>
+
+<div class="phone" id="phone">
+  <!-- SPLASH -->
+  <div class="screen active" id="splash">
+    <div class="statusbar">9:41</div>
+    <img class="hero" src="Neximed/Resources/Images/Splash/splash-centerpiece.jpeg" style="height:60%">
+    <div class="content">
+      <h2>Neximed</h2>
+      <p>Tu cuaderno clínico personal</p>
+      <div style="background:#21262D;border-radius:4px;height:6px;margin-top:14px;overflow:hidden">
+        <div style="width:100%;height:100%;background:linear-gradient(90deg,#00D2FF,#8A2BE2);animation:load 2s"></div>
+      </div>
+      <style>@keyframes load{from{width:0}}@keyframes load2{from{width:0}}</style>
+      <p style="font-size:11px;color:#8b949e;margin-top:8px">Cargando tus constantes... 100%</p>
+      <button class="btn" onclick="show('onboard1')">Entrar →</button>
+    </div>
+  </div>
+
+  <!-- ONBOARDING 1 -->
+  <div class="screen" id="onboard1">
+    <div class="statusbar">9:41</div>
+    <img class="hero" src="Neximed/Resources/Images/Onboarding/onboarding-1-voice.jpeg">
+    <div class="content">
+      <h2>Habla, Neximed escucha</h2>
+      <p>Dicta tus síntomas con voz natural. La IA on-device pule la redacción y extrae los datos clave.</p>
+      <div class="dots"><div class="dot active"></div><div class="dot"></div><div class="dot"></div></div>
+      <button class="btn" onclick="show('onboard2')">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ONBOARDING 2 -->
+  <div class="screen" id="onboard2">
+    <div class="statusbar">9:41</div>
+    <img class="hero" src="Neximed/Resources/Images/Onboarding/onboarding-2-scanner.jpeg">
+    <div class="content">
+      <h2>Escanea tus analíticas</h2>
+      <p>Fotografía tu analítica de laboratorio y Neximed extrae y organiza más de 25 biomarcadores.</p>
+      <div class="dots"><div class="dot"></div><div class="dot active"></div><div class="dot"></div></div>
+      <button class="btn" onclick="show('onboard3')">Continuar →</button>
+    </div>
+  </div>
+
+  <!-- ONBOARDING 3 -->
+  <div class="screen" id="onboard3">
+    <div class="statusbar">9:41</div>
+    <img class="hero" src="Neximed/Resources/Images/Onboarding/onboarding-3-dossier.jpeg">
+    <div class="content">
+      <h2>Dossier para tu médico</h2>
+      <p>Genera un PDF clínico de 1 página con tus constantes, medicación y preguntas preparadas.</p>
+      <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot active"></div></div>
+      <button class="btn" onclick="show('dashboard')">Comenzar con Neximed 🚀</button>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="screen" id="dashboard">
+    <button class="back" onclick="show('onboard3')">←</button>
+    <div class="statusbar">9:41</div>
+    <div class="content" style="padding-bottom:70px">
+      <p style="font-size:12px;color:#8b949e">Buenos días • Cuaderno Clínico</p>
+      <h2 style="font-size:28px">Laura 👋</h2>
+
+      <div class="card" style="background:linear-gradient(135deg,#00D2FF22,#8A2BE222);border-color:#00D2FF55">
+        <h3>🎯 Objetivo de descanso</h3>
+        <p style="font-size:18px;font-weight:700">6.8 h / 7.5 h</p>
+        <span class="badge">En progreso</span>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric"><div class="label">❤️ FC en reposo</div><div class="value" style="color:#FF5E62">62 <span class="unit">bpm</span></div></div>
+        <div class="metric"><div class="label">📈 Variabilidad (HRV)</div><div class="value" style="color:#0099FF">45 <span class="unit">ms</span></div></div>
+        <div class="metric"><div class="label">🌙 Sueño medio</div><div class="value" style="color:#8A2BE2">6.8 <span class="unit">h</span></div></div>
+        <div class="metric"><div class="label">👟 Pasos</div><div class="value" style="color:#38EF7D">8,432 <span class="unit">pasos</span></div></div>
+      </div>
+
+      <div class="card">
+        <h3>💡 Recomendaciones de hoy</h3>
+        <p>🌙 Duermes 6.8h de media; tu objetivo son 7.5h.</p>
+        <p style="margin-top:6px">👟 Promedias 8,432 pasos frente a tu objetivo de 10,000.</p>
+      </div>
+
+      <button class="btn" onclick="show('agent')">💬 Hablar con mi asistente</button>
+      <button class="btn secondary" onclick="show('voice')">🎤 Dictar síntoma por voz</button>
+    </div>
+    <div class="tabbar">
+      <div class="tab active" onclick="show('dashboard')"><span>🏠</span>Dashboard</div>
+      <div class="tab" onclick="show('agent')"><span>🧠</span>Asistente</div>
+      <div class="tab" onclick="show('nutrition')"><span>🍎</span>Nutrición</div>
+      <div class="tab" onclick="show('labs')"><span>🧪</span>Laboratorio</div>
+      <div class="tab" onclick="show('trends')"><span>📊</span>Tendencias</div>
+      <div class="tab" onclick="show('profile')"><span>👤</span>Perfil</div>
+    </div>
+  </div>
+
+  <!-- ASISTENTE -->
+  <div class="screen" id="agent">
+    <div class="statusbar">9:41</div>
+    <div class="content">
+      <h2>🧠 Asistente Neximed</h2>
+      <div class="card" style="background:#8A2BE222;border-color:#8A2BE255">
+        <p>¡Hola, Laura! He analizado tus últimas 2 semanas. Tu sueño mejora los días que caminas más de 9,000 pasos. 📈</p>
+      </div>
+      <div class="card" style="margin-left:40px;background:#00D2FF22;border-color:#00D2FF55">
+        <p>¿Debo preocuparme por mi HRV de 45 ms?</p>
+      </div>
+      <div class="card">
+        <p>Tu HRV medio es 45 ms. Es un valor orientativo: si notas cambios bruscos, coméntalo con tu médico. Aquí tienes 2 preguntas para tu próxima consulta...</p>
+      </div>
+      <div class="card">
+        <p style="font-size:11px;color:#8b949e">Pregunta algo sobre tu salud...</p>
+      </div>
+      <button class="btn" onclick="show('prep')">📋 Preparación de consulta</button>
+    </div>
+    <div class="tabbar">
+      <div class="tab" onclick="show('dashboard')"><span>🏠</span>Dashboard</div>
+      <div class="tab active" onclick="show('agent')"><span>🧠</span>Asistente</div>
+      <div class="tab" onclick="show('nutrition')"><span>🍎</span>Nutrición</div>
+      <div class="tab" onclick="show('labs')"><span>🧪</span>Laboratorio</div>
+      <div class="tab" onclick="show('trends')"><span>📊</span>Tendencias</div>
+      <div class="tab" onclick="show('profile')"><span>👤</span>Perfil</div>
+    </div>
+  </div>
+
+  <!-- PREP CONSULTA -->
+  <div class="screen" id="prep">
+    <button class="back" onclick="show('agent')">←</button>
+    <div class="statusbar">9:41</div>
+    <div class="content">
+      <h2>📋 Preparación de consulta</h2>
+      <img src="Neximed/Resources/Images/Illustrations/illustration-dossier.jpeg" style="width:100%;border-radius:16px;margin-top:10px">
+      <div class="card">
+        <h3>Observaciones</h3>
+        <p>• FC reposo media: 62 bpm</p>
+        <p>• Sueño medio: 6.8 h/noche</p>
+        <p>• HRV medio: 45 ms</p>
+      </div>
+      <div class="card">
+        <h3>Preguntas para tu doctor</h3>
+        <p>1. ¿Es adecuada mi evolución con estos valores?</p>
+        <p>2. ¿Debo repetir alguna analítica pronto?</p>
+        <p>3. ¿Hay algún hábito que debería ajustar?</p>
+      </div>
+      <button class="btn" onclick="show('pdf')">📄 Generar Dossier PDF</button>
+    </div>
+  </div>
+
+  <!-- PDF DOSSIER -->
+  <div class="screen" id="pdf">
+    <button class="back" onclick="show('prep')">←</button>
+    <div class="statusbar">9:41</div>
+    <div class="content">
+      <h2>📄 Dossier Clínico</h2>
+      <div class="card" style="background:#fff;color:#0D1117">
+        <h3 style="color:#0D1117">DOSSIER DE SALUD — NEXIMED</h3>
+        <p style="color:#333">Paciente: Laura | Período: Últimas 2 semanas</p>
+        <p style="color:#333;margin-top:8px"><b>FC Reposo:</b> 62 bpm &nbsp; <b>HRV:</b> 45 ms &nbsp; <b>Sueño:</b> 6.8h</p>
+        <p style="color:#333;margin-top:8px"><b>Alergias:</b> Penicilina &nbsp; <b>Alerg. aliment.:</b> Gluten</p>
+        <p style="color:#333;margin-top:8px"><b>Botiquín:</b> Eutirox 50 mcg</p>
+        <p style="color:#333;margin-top:8px"><b>Preguntas:</b> 1. ¿Es adecuada mi evolución?</p>
+        <p style="color:#888;font-size:10px;margin-top:10px">DOCUMENTO INFORMATIVO. NO CONSTITUYE DIAGNÓSTICO MÉDICO.</p>
+      </div>
+      <button class="btn secondary" onclick="show('agent')">Volver al asistente</button>
+    </div>
+  </div>
+
+  <!-- VOZ -->
+  <div class="screen" id="voice">
+    <button class="back" onclick="show('dashboard')">←</button>
+    <div class="statusbar">9:41</div>
+    <div class="content">
+      <h2>🎤 Dictado Inteligente</h2>
+      <img src="Neximed/Resources/Images/Illustrations/illustration-voice.jpeg" style="width:100%;border-radius:16px;margin-top:10px">
+      <p style="font-size:13px;color:#8b949e;margin-top:12px">Toca para hablar. Puedes describir síntomas, pautas o notas.</p>
+      <div style="display:flex;justify-content:center;gap:6px;margin-top:14px;height:50px;align-items:center">
+        <div style="width:4px;height:20px;background:#00D2FF;border-radius:3px"></div>
+        <div style="width:4px;height:40px;background:#00D2FF;border-radius:3px"></div>
+        <div style="width:4px;height:30px;background:#8A2BE2;border-radius:3px"></div>
+        <div style="width:4px;height:50px;background:#00D2FF;border-radius:3px"></div>
+        <div style="width:4px;height:25px;background:#8A2BE2;border-radius:3px"></div>
+        <div style="width:4px;height:35px;background:#00D2FF;border-radius:3px"></div>
+      </div>
+      <div class="card">
+        <p>"Hoy al despertarme me dolía bastante la sien derecha..."</p>
+      </div>
+      <button class="btn" onclick="show('voiceResult')">⏹️ Terminar y Pulir con IA</button>
+    </div>
+  </div>
+
+  <!-- VOZ RESULTADO -->
+  <div class="screen" id="voiceResult">
+    <button class="back" onclick="show('voice')">←</button>
+    <div class="statusbar">9:41</div>
+    <div class="content">
+      <h2>✨ Texto pulido por IA</h2>
+      <div class="card">
+        <h3>Cefalea temporal matutina</h3>
+        <p>Hoy al despertarme noté un dolor notable en la sien derecha, que ha ido disminuyendo a lo largo de la mañana.</p>
+      </div>
+      <div style="margin-top:10px">
+        <span class="chip">Cefalea</span><span class="chip">Intensidad: Moderada</span><span class="chip">Mañana</span>
+      </div>
+      <div class="card">
+        <h3>💬 Pregunta para tu doctor</h3>
+        <p>¿Debo comentar este síntoma con mi médico en la próxima consulta?</p>
+      </div>
+      <button class="btn" onclick="show('dashboard')">✓ Confirmar y Guardar</button>
+    </div>
+  </div>
+
+  <!-- NUTRICIÓN -->
+  <div class="screen" id="nutrition">
+    <div class="statusbar">9:41</div>
+    <div class="content" style="padding-bottom:70px">
+      <h2>🍎 Nutrición</h2>
+      <div class="card" style="border-style:dashed">
+        <p style="color:#8b949e;text-align:center;padding:20px 0">📷 Toca para fotografiar tu plato</p>
+      </div>
+      <button class="btn secondary" onclick="show('foodSearch')">➕ Añadir comida manualmente</button>
+      <div class="metric-grid" style="margin-top:10px">
+        <div class="metric"><div class="label">🔥 Hoy</div><div class="value" style="color:#FF9F43">1,240 <span class="unit">kcal</span></div></div>
+        <div class="metric"><div class="label">💪 Proteína</div><div class="value" style="color:#38EF7D">68 <span class="unit">g</span></div></div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab" onclick="show('dashboard')"><span>🏠</span>Dashboard</div>
+      <div class="tab" onclick="show('agent')"><span>🧠</span>Asistente</div>
+      <div class="tab active" onclick="show('nutrition')"><span>🍎</span>Nutrición</div>
+      <div class="tab" onclick="show('labs')"><span>🧪</span>Laboratorio</div>
+      <div class="tab" onclick="show('trends')"><span>📊</span>Tendencias</div>
+      <div class="tab" onclick="show('profile')"><span>👤</span>Perfil</div>
+    </div>
+  </div>
+
+  <!-- BÚSQUEDA COMIDA -->
+  <div class="screen" id="foodSearch">
+    <button class="back" onclick="show('nutrition')">←</button>
+    <div class="statusbar">9:41</div>
+    <div class="content">
+      <h2>🔍 Añadir comida</h2>
+      <div class="card" style="background:#21262D"><p style="color:#8b949e">Buscar alimento (manzana, pollo, arroz...)</p></div>
+      <div class="card"><div class="row"><span>🍗 Pollo (pechuga)</span><b style="color:#00D2FF">198 kcal</b></div>
+      <div class="row"><span>🥗 Ensalada mixta</span><b style="color:#00D2FF">170 kcal</b></div>
+      <div class="row"><span>🍞 Pan integral <span class="badge red">⚠️ Contiene: Gluten</span></span><b style="color:#00D2FF">99 kcal</b></div>
+      <div class="row"><span>🥛 Yogur natural <span class="badge red">⚠️ Lácteos</span></span><b style="color:#00D2FF">76 kcal</b></div></div>
+      <button class="btn" onclick="show('foodSearch')">Registrar</button>
+    </div>
+  </div>
+
+  <!-- LABORATORIO -->
+  <div class="screen" id="labs">
+    <div class="statusbar">9:41</div>
+    <div class="content" style="padding-bottom:70px">
+      <h2>🧪 Laboratorio</h2>
+      <img src="Neximed/Resources/Images/Illustrations/illustration-labs.jpeg" style="width:100%;border-radius:16px">
+      <div class="card">
+        <div class="row"><span>Colesterol Total</span><b>190 mg/dL</b><span class="badge green">En rango</span></div>
+        <div class="row"><span>Glucosa en ayunas</span><b>95 mg/dL</b><span class="badge green">En rango</span></div>
+        <div class="row"><span>Vitamina D</span><b style="color:#FF5E62">22 ng/mL</b><span class="badge">Fuera de rango</span></div>
+        <div class="row"><span>Ferritina</span><b>85 ng/mL</b><span class="badge green">En rango</span></div>
+      </div>
+      <button class="btn" onclick="show('labs')">✨ Interpretar con IA</button>
+      <p style="font-size:10px;color:#8b949e;margin-top:8px">Datos informativos — coméntalos con tu médico</p>
+    </div>
+    <div class="tabbar">
+      <div class="tab" onclick="show('dashboard')"><span>🏠</span>Dashboard</div>
+      <div class="tab" onclick="show('agent')"><span>🧠</span>Asistente</div>
+      <div class="tab" onclick="show('nutrition')"><span>🍎</span>Nutrición</div>
+      <div class="tab active" onclick="show('labs')"><span>🧪</span>Laboratorio</div>
+      <div class="tab" onclick="show('trends')"><span>📊</span>Tendencias</div>
+      <div class="tab" onclick="show('profile')"><span>👤</span>Perfil</div>
+    </div>
+  </div>
+
+  <!-- TENDENCIAS -->
+  <div class="screen" id="trends">
+    <div class="statusbar">9:41</div>
+    <div class="content" style="padding-bottom:70px">
+      <h2>📊 Tendencias</h2>
+      <div class="card">
+        <h3>🔗 Patrones en tus datos</h3>
+        <p style="color:#00D2FF;font-weight:600">Sueño y variabilidad cardíaca (HRV)</p>
+        <p>En tus datos, más horas de sueño se asocian con mayor HRV (recuperación).</p>
+        <p style="color:#00D2FF;font-weight:600;margin-top:6px">Actividad y FC en reposo</p>
+        <p>Más pasos se asocian con una FC en reposo más baja.</p>
+      </div>
+      <div class="card">
+        <h3>⚖️ Seguimiento de peso</h3>
+        <div style="display:flex;align-items:flex-end;gap:6px;height:80px;padding-top:10px">
+          <div style="flex:1;height:40px;background:#00D2FF44;border-radius:6px 6px 0 0"></div>
+          <div style="flex:1;height:48px;background:#00D2FF66;border-radius:6px 6px 0 0"></div>
+          <div style="flex:1;height:44px;background:#00D2FF88;border-radius:6px 6px 0 0"></div>
+          <div style="flex:1;height:55px;background:#00D2FF;border-radius:6px 6px 0 0"></div>
+        </div>
+        <p style="font-size:11px;color:#8b949e;margin-top:6px">65.2 → 64.8 kg (últimas semanas)</p>
+      </div>
+    </div>
+    <div class="tabbar">
+      <div class="tab" onclick="show('dashboard')"><span>🏠</span>Dashboard</div>
+      <div class="tab" onclick="show('agent')"><span>🧠</span>Asistente</div>
+      <div class="tab" onclick="show('nutrition')"><span>🍎</span>Nutrición</div>
+      <div class="tab" onclick="show('labs')"><span>🧪</span>Laboratorio</div>
+      <div class="tab active" onclick="show('trends')"><span>📊</span>Tendencias</div>
+      <div class="tab" onclick="show('profile')"><span>👤</span>Perfil</div>
+    </div>
+  </div>
+
+  <!-- PERFIL -->
+  <div class="screen" id="profile">
+    <div class="statusbar">9:41</div>
+    <div class="content" style="padding-bottom:70px">
+      <h2>👤 Mi Perfil</h2>
+      <div class="card">
+        <div class="row"><span>Nombre</span><b>Laura</b></div>
+        <div class="row"><span>Edad / Sexo</span><b>34 · Mujer</b></div>
+        <div class="row"><span>IMC</span><b>22.4</b></div>
+        <div class="row"><span>Dieta</span><b>Mediterránea</b></div>
+        <div class="row"><span>Trabajo</span><b>Turnos rotativos</b></div>
+        <div class="row"><span>Horas de pantalla</span><b>5.5 h/día</b></div>
+      </div>
+      <div class="card" style="border-color:#FF5E6255">
+        <h3>⚠️ Alergias alimentarias</h3>
+        <span class="chip red">🌾 Gluten</span><span class="chip red">🥜 Cacahuetes</span>
+      </div>
+      <button class="btn secondary" onclick="show('profile')">💊 Botiquín →</button>
+      <button class="btn secondary" onclick="show('profile')">🔔 Recordatorios →</button>
+      <button class="btn secondary" onclick="show('profile')">🌍 Idioma: Español</button>
+      <button class="btn" onclick="show('lock')">🔒 Bloquear (Face ID)</button>
+    </div>
+    <div class="tabbar">
+      <div class="tab" onclick="show('dashboard')"><span>🏠</span>Dashboard</div>
+      <div class="tab" onclick="show('agent')"><span>🧠</span>Asistente</div>
+      <div class="tab" onclick="show('nutrition')"><span>🍎</span>Nutrición</div>
+      <div class="tab" onclick="show('labs')"><span>🧪</span>Laboratorio</div>
+      <div class="tab" onclick="show('trends')"><span>📊</span>Tendencias</div>
+      <div class="tab active" onclick="show('profile')"><span>👤</span>Perfil</div>
+    </div>
+  </div>
+
+  <!-- BLOQUEO -->
+  <div class="screen" id="lock">
+    <div class="statusbar">9:41</div>
+    <div class="content" style="justify-content:center;align-items:center;display:flex;flex-direction:column">
+      <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#00D2FF,#8A2BE2);display:flex;align-items:center;justify-content:center;font-size:40px;margin-bottom:20px">🔒</div>
+      <h2>Neximed bloqueado</h2>
+      <p style="text-align:center;margin-top:8px">Tus datos de salud están protegidos</p>
+      <button class="btn" onclick="show('dashboard')">😀 Desbloquear con Face ID</button>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:16px;font-size:12px;color:#8b949e;max-width:390px;text-align:center">
+Neximed es una herramienta de organización personal y no sustituye el criterio de un profesional médico.<br>
+Demo interactiva — prototipo de validación.
+</p>
+
+<script>
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+</script>
+</body>
+</html>
