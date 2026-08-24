@@ -1,0 +1,81 @@
+name: Neximed
+options:
+  bundleIdPrefix: com.neximed
+  developmentLanguage: es
+  knownRegions:
+    - en
+    - es
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  groupSortPosition: top
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: minimal
+    SWIFT_APPROACHABLE_CONCURRENCY: YES
+    DEVELOPMENT_TEAM: ""
+    CODE_SIGN_STYLE: Automatic
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+    TARGETED_DEVICE_FAMILY: "1"
+    SUPPORTS_MACCATALYST: NO
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    ENABLE_MODULE_VERIFIER: YES
+    STRING_CATALOG_GENERATE_SYMBOLS: YES
+
+targets:
+  Neximed:
+    type: application
+    platform: iOS
+    sources:
+      - path: Neximed/Sources/Neximed
+    resources:
+      - path: Neximed/Resources
+        excludes:
+          - Info.plist
+          - "*.entitlements"
+    info:
+      path: Neximed/Resources/Info.plist
+      properties:
+        CFBundleName: Neximed
+        CFBundleDisplayName: Neximed
+        CFBundleIdentifier: com.neximed.app
+        CFBundleVersion: "1"
+        CFBundleShortVersionString: "1.0.0"
+        LSApplicationCategoryType: public.app-category.healthcare-fitness
+        NSHealthShareUsageDescription: Neximed lee tus constantes de Apple Health (FC reposo, HRV, descanso) para estructurarlas en tu dossier médico personal. Todos los datos se procesan únicamente en tu dispositivo.
+        NSHealthUpdateUsageDescription: Neximed permite guardar registros de alimentación y parámetros clínicos organizados en Apple Health.
+        NSMicrophoneUsageDescription: Neximed utiliza el micrófono para que puedas dictar síntomas, notas médicas y preguntas con total comodidad mediante voz.
+        NSSpeechRecognitionUsageDescription: Neximed utiliza el reconocimiento de voz en el dispositivo para transcribir y pulir tus notas de salud con IA antes de guardarlas.
+        NSCameraUsageDescription: Neximed usa la cámara para escanear informes médicos en papel o platos de comida.
+        NSPhotoLibraryUsageDescription: Neximed permite importar fotos o PDFs de analíticas de laboratorio desde tu biblioteca.
+        UILaunchScreen: {}
+        UIRequiresFullScreen: false
+        UIStatusBarStyle: UIStatusBarStyleLightContent
+        UIUserInterfaceStyle: Dark
+        UIRequiredDeviceCapabilities:
+          - arm64
+          - healthkit
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UISupportedInterfaceOrientations~ipad:
+          - UIInterfaceOrientationPortrait
+    entitlements:
+      path: Neximed/Resources/Neximed.entitlements
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.neximed.app
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+
+schemes:
+  Neximed:
+    build:
+      targets:
+        Neximed: all
+    run:
+      config: Debug
+    archive:
+      config: Release

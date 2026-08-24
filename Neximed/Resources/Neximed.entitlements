@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- HealthKit (lectura de constantes + escritura de nutricion) -->
+    <key>com.apple.developer.healthkit</key>
+    <true/>
+
+    <!-- Apple Intelligence / Foundation Models -->
+    <key>com.apple.developer.foundation-models</key>
+    <true/>
+
+    <!-- App Intents / Siri -->
+    <key>com.apple.developer.siri</key>
+    <true/>
+
+    <!-- Screen Time API (horas de pantalla automaticas).
+         REQUIERE APROBACION ESPECIAL DE APPLE (solicitud en developer.apple.com).
+         Hasta que se conceda, NO descomentar: la app usa el auto-reporte del usuario. -->
+    <!--
+    <key>com.apple.developer.family-controls</key>
+    <true/>
+    -->
+</dict>
+</plist>

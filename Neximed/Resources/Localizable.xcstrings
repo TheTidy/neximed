@@ -1,0 +1,186 @@
+{
+  "sourceLanguage" : "es",
+  "strings" : {
+    "Bienvenido a Neximed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Welcome to Neximed" } }
+      }
+    },
+    "Tu cuaderno clínico personal y preparador de consultas médicas. 100% privado y on-device." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your personal clinical notebook and medical visit preparer. 100% private and on-device." } }
+      }
+    },
+    "Comenzar con Neximed" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Get started with Neximed" } }
+      }
+    },
+    "Continuar" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Continue" } }
+      }
+    },
+    "Habla, Neximed escucha" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Speak, Neximed listens" } }
+      }
+    },
+    "Dicta tus síntomas con voz natural. La IA on-device pule la redacción y extrae los datos clave." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dictate your symptoms with natural voice. On-device AI polishes the text and extracts key data." } }
+      }
+    },
+    "Escanea tus analíticas" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Scan your lab results" } }
+      }
+    },
+    "Fotografía tu analítica de laboratorio y Neximed extrae y organiza más de 25 biomarcadores." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Photograph your lab report and Neximed extracts and organizes over 25 biomarkers." } }
+      }
+    },
+    "Dossier para tu médico" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dossier for your doctor" } }
+      }
+    },
+    "Genera un PDF clínico de 1 página con tus constantes, medicación y preguntas preparadas." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generate a 1-page clinical PDF with your vitals, medication, and prepared questions." } }
+      }
+    },
+    "¿Cómo te llamas?" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "What's your name?" } }
+      }
+    },
+    "Tu nombre" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Your name" } }
+      }
+    },
+    "Neximed es una herramienta de organización personal y no sustituye el criterio de un profesional médico." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Neximed is a personal organization tool and does not replace the judgment of a healthcare professional." } }
+      }
+    },
+    "Dictar Síntoma o Nota" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dictate Symptom or Note" } }
+      }
+    },
+    "Generar Dossier para mi Médico" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Generate Dossier for my Doctor" } }
+      }
+    },
+    "PDF de 1 página con constantes, analíticas y preguntas" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "1-page PDF with vitals, lab results, and questions" } }
+      }
+    },
+    "Síntomas registrados" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Recorded symptoms" } }
+      }
+    },
+    "Preparación para tu próxima visita médica" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Preparation for your next medical visit" } }
+      }
+    },
+    "Preguntas sugeridas para tu doctor:" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Suggested questions for your doctor:" } }
+      }
+    },
+    "Objetivo de descanso" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Rest goal" } }
+      }
+    },
+    "Registro de Sueño — 7 días" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Sleep Log — 7 days" } }
+      }
+    },
+    "Frecuencia Cardíaca en Reposo" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Resting Heart Rate" } }
+      }
+    },
+    "Dictado Inteligente" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Smart Dictation" } }
+      }
+    },
+    "Habla con naturalidad, la IA pulirá tu redacción" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Speak naturally, AI will polish your text" } }
+      }
+    },
+    "Toca el botón inferior para empezar a hablar." : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Tap the button below to start speaking." } }
+      }
+    },
+    "Terminar y Pulir con IA" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Finish & Polish with AI" } }
+      }
+    },
+    "Pulsar para Hablar" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Hold to Talk" } }
+      }
+    },
+    "Confirmar y Guardar" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Confirm & Save" } }
+      }
+    },
+    "Grabar de nuevo" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Record again" } }
+      }
+    },
+    "Pregunta sugerida para tu doctor:" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Suggested question for your doctor:" } }
+      }
+    },
+    "Dashboard" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Dashboard" } }
+      }
+    },
+    "Asistente" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Assistant" } }
+      }
+    },
+    "Nutrición" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Nutrition" } }
+      }
+    },
+    "Laboratorio" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Lab" } }
+      }
+    },
+    "Tendencias" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Trends" } }
+      }
+    },
+    "Perfil" : {
+      "localizations" : {
+        "en" : { "stringUnit" : { "state" : "translated", "value" : "Profile" } }
+      }
+    }
+  },
+  "version" : "1.0"
+}

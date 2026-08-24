@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <!-- Nombre de la app -->
+    <key>CFBundleName</key>
+    <string>Neximed</string>
+    <key>CFBundleDisplayName</key>
+    <string>Neximed</string>
+    <key>CFBundleIdentifier</key>
+    <string>com.neximed.app</string>
+    <key>CFBundleVersion</key>
+    <string>1</string>
+    <key>CFBundleShortVersionString</key>
+    <string>1.0.0</string>
+
+    <!-- HealthKit -->
+    <key>NSHealthShareUsageDescription</key>
+    <string>Neximed lee tus constantes de Apple Health (FC reposo, HRV, descanso) para estructurarlas en tu dossier médico personal. Todos los datos se procesan únicamente en tu dispositivo.</string>
+    <key>NSHealthUpdateUsageDescription</key>
+    <string>Neximed permite guardar registros de alimentación y parámetros clínicos organizados en Apple Health.</string>
+
+    <!-- Micrófono y Reconocimiento de Voz (Voice-First Engine) -->
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Neximed utiliza el micrófono para que puedas dictar síntomas, notas médicas y preguntas con total comodidad mediante voz.</string>
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Neximed utiliza el reconocimiento de voz en el dispositivo para transcribir y pulir tus notas de salud con IA antes de guardarlas.</string>
+
+    <!-- Cámara y Fotos -->
+    <key>NSCameraUsageDescription</key>
+    <string>Neximed usa la cámara para escanear informes médicos en papel o platos de comida.</string>
+    <key>NSPhotoLibraryUsageDescription</key>
+    <string>Neximed permite importar fotos o PDFs de analíticas de laboratorio desde tu biblioteca.</string>
+
+    <!-- Configuración de UI -->
+    <key>UILaunchStoryboardName</key>
+    <string>LaunchScreen</string>
+    <key>UIRequiresFullScreen</key>
+    <false/>
+    <key>UIStatusBarStyle</key>
+    <string>UIStatusBarStyleLightContent</string>
+    <key>UIUserInterfaceStyle</key>
+    <string>Dark</string>
+
+    <!-- Capacidades requeridas -->
+    <key>UIRequiredDeviceCapabilities</key>
+    <array>
+        <string>arm64</string>
+        <string>healthkit</string>
+    </array>
+
+    <!-- Orientaciones soportadas -->
+    <key>UISupportedInterfaceOrientations</key>
+    <array>
+        <string>UIInterfaceOrientationPortrait</string>
+    </array>
+</dict>
+</plist>

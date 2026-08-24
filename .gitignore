@@ -1,0 +1,14 @@
+# Xcode
+build/
+DerivedData/
+*.xcuserstate
+xcuserdata/
+*.xcscmblueprint
+.DS_Store
+
+# Swift Package Manager
+.build/
+.swiftpm/
+
+# Temporales
+*.tmp.gitconfig-local

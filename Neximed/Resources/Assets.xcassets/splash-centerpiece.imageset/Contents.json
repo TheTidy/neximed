@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "splash-centerpiece.jpeg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}
