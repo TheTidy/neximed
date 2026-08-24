@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Neximed — Política de Privacidad</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system, 'Segoe UI', Roboto, sans-serif; background:#0D1117; color:#c9d1d9; line-height:1.7; padding:20px; }
+  .container { max-width:780px; margin:0 auto; background:#161B22; border-radius:16px; padding:40px; border:1px solid #30363D; }
+  h1 { color:#00D2FF; font-size:26px; margin-bottom:8px; }
+  h2 { color:#fff; font-size:18px; margin:28px 0 10px; }
+  h3 { color:#00D2FF; font-size:15px; margin:16px 0 6px; }
+  p, li { font-size:14px; margin-bottom:8px; }
+  ul { padding-left:22px; margin-bottom:12px; }
+  a { color:#00D2FF; }
+  .meta { color:#8b949e; font-size:12px; margin-bottom:24px; border-bottom:1px solid #30363D; padding-bottom:16px; }
+  .tag { display:inline-block; background:#00D2FF22; color:#00D2FF; border:1px solid #00D2FF55; border-radius:20px; padding:3px 12px; font-size:11px; margin:3px; }
+  .updated { color:#8b949e; font-size:12px; margin-top:24px; padding-top:16px; border-top:1px solid #30363D; }
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🔐 Neximed — Política de Privacidad</h1>
+<p class="meta">Última actualización: <span id="fecha"></span></p>
+<div><span class="tag">100% on-device</span><span class="tag">Sin servidores</span><span class="tag">Cumple GDPR</span></div>
+
+<h2>1. Resumen en lenguaje claro</h2>
+<p><strong>Neximed es una aplicación de salud 100% privada.</strong> Todos tus datos se procesan y almacenan <strong>únicamente en tu dispositivo</strong>. No tenemos servidores, no recopilamos tus datos, no los vendemos y no los compartimos con terceros. Neximed no puede ver tus datos de salud: solo tú los ves en tu iPhone.</p>
+
+<h2>2. Qué datos gestiona la aplicación</h2>
+<p>Neximed te permite organizar tu información de salud de forma local:</p>
+<ul>
+<li><strong>Datos de Apple Health (HealthKit)</strong>: con tu permiso explícito, la app puede <em>leer</em> constantes como frecuencia cardíaca en reposo, variabilidad (HRV), sueño, actividad y nutrición, y <em>escribir</em> registros de alimentación que tú añadas.</li>
+<li><strong>Dictados de voz</strong>: cuando usas el dictado, el audio se transcribe <strong>en tu dispositivo</strong> (reconocimiento on-device). El audio no se envía a ningún servidor.</li>
+<li><strong>Analíticas de laboratorio</strong>: las fotos o PDFs que escaneas se procesan localmente con OCR. Las imágenes permanecen en tu dispositivo.</li>
+<li><strong>Perfil y registros manuales</strong>: nombre, datos demográficos, patologías, alergias, medicación, dieta, horarios de trabajo y notas que tú introduces voluntariamente.</li>
+<li><strong>IA on-device (Apple Intelligence)</strong>: cuando está disponible, los modelos de lenguaje de Apple se ejecutan en tu dispositivo. Tus datos no salen de él.</li>
+</ul>
+
+<h2>3. Procesamiento 100% local</h2>
+<p>La arquitectura de Neximed está diseñada para que <strong>nunca necesitemos acceder a tus datos</strong>:</p>
+<ul>
+<li>Los datos se guardan en <strong>SwiftData local</strong>, cifrados con el sistema de protección de archivos de iOS (solo accesibles tras desbloquear el dispositivo).</li>
+<li>El reconocimiento de voz usa <code>requiresOnDeviceRecognition</code>: la transcripción no sale del iPhone.</li>
+<li>La IA usa el framework <strong>Foundation Models</strong> de Apple, que ejecuta los modelos localmente.</li>
+<li>No usamos analíticas, no rastreamos tu actividad y no mostramos anuncios.</li>
+</ul>
+
+<h2>4. Permisos que solicitamos</h2>
+<ul>
+<li><strong>Apple Health</strong>: para leer/escribir datos de salud (solo con tu consentimiento, gestionable en Ajustes).</li>
+<li><strong>Micrófono</strong>: para el dictado por voz.</li>
+<li><strong>Reconocimiento de voz</strong>: para transcribir el dictado en tu dispositivo.</li>
+<li><strong>Cámara / Fotos</strong>: para escanear analíticas y etiquetas de alimentos.</li>
+<li><strong>Notificaciones</strong>: para recordatorios de medicación, hidratación y citas.</li>
+<li><strong>Face ID / Touch ID</strong>: para proteger el acceso a la app.</li>
+</ul>
+<p>Puedes revocar cualquiera de estos permisos en cualquier momento desde los Ajustes de tu iPhone.</p>
+
+<h2>5. Tus derechos (GDPR / RGPD)</h2>
+<p>Dado que los datos residen en tu dispositivo y no en nuestros servidores, tú ejerces el control total:</p>
+<ul>
+<li><strong>Acceso y portabilidad</strong>: la app incluye exportación de todos tus datos en formato CSV y JSON.</li>
+<li><strong>Eliminación</strong>: borrar la app elimina todos los datos asociados (o usa la función de borrado local).</li>
+<li><strong>Rectificación</strong>: puedes editar o corregir cualquier dato en cualquier momento.</li>
+<li><strong>Revocación de permisos</strong>: en Ajustes de iOS.</li>
+</ul>
+
+<h2>6. Compartir datos</h2>
+<p><strong>No compartimos ningún dato con terceros.</strong> La única forma de que tus datos salgan del dispositivo es que <strong>tú</strong> los exportes (CSV/JSON) o generes tu dossier PDF para llevarlo a tu médico, acciones que haces voluntariamente.</p>
+
+<h2>7. Seguridad</h2>
+<ul>
+<li>Cifrado de datos en reposo mediante File Protection de iOS.</li>
+<li>Bloqueo biométrico (Face ID / Touch ID) configurable.</li>
+<li>Redacción de datos sensibles en capturas de pantalla y App Switcher.</li>
+</ul>
+
+<h2>8. Aviso médico</h2>
+<p>Neximed es una herramienta de <strong>organización personal</strong> de datos de salud. <strong>No</strong> proporciona diagnósticos, tratamientos ni consejo médico. Ante cualquier duda sobre tu salud, consulta siempre a un profesional sanitario.</p>
+
+<h2>9. Menores</h2>
+<p>La aplicación no está dirigida a menores de 16 años y no recopilamos datos de menores de forma intencionada.</p>
+
+<h2>10. Cambios en esta política</h2>
+<p>Si esta política cambia, se actualizará en esta misma URL con su fecha de revisión.</p>
+
+<h2>11. Contacto</h2>
+<p>Para cualquier cuestión sobre privacidad: <strong>privacidad@neximed.app</strong></p>
+
+<p class="updated">Neximed — Tu cuaderno clínico personal. Documento informativo, no sustituye el criterio de un profesional médico.</p>
+</div>
+<script>document.getElementById('fecha').textContent = new Date().toLocaleDateString('es-ES', {year:'numeric', month:'long', day:'numeric'});</script>
+</body>
+</html>
