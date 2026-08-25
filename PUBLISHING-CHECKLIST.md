@@ -1,88 +1,61 @@
-# 📱 Neximed — Checklist de Publicación en App Store
+# Neximed - Checklist de Publicacion en App Store (actualizado)
 
-> Documento de control para llevar la app desde el código hasta la App Store.
-> Marca cada casilla con ``[x]`` cuando esté completada.
-
----
-
-## ✅ FASE 0 — Requisitos previos
-
-- [ ] **Cuenta de desarrollador Apple** (99 USD/año) en [developer.apple.com](https://developer.apple.com)
-- [ ] **Mac con Xcode 26+** (para FoundationModels / Apple Intelligence)
-- [ ] **XcodeGen instalado**: ``brew install xcodegen``
-- [ ] **Bundle ID registrado** en App Store Connect: ``com.neximed.app``
-- [ ] **iPhone físico para pruebas** (HealthKit y voz no funcionan completos en simulador)
+> Estado real verificado. Documento de control para llevar la app hasta la App Store.
 
 ---
 
-## 🥇 FASE A — Build Verde
+## FASE 0 - Requisitos previos
 
-1. En la raíz del proyecto (tu Mac): ``xcodegen generate``
-2. ``open Neximed.xcodeproj`` → selecciona tu **Team** de firma
-3. Compila con **⌘B** y corrige los warnings/errores que surjan
-4. Prueba en dispositivo real:
-   - [ ] Dashboard carga constantes de HealthKit
-   - [ ] Dictado por voz transcribe y guarda
-   - [ ] Escáner OCR de analítica funciona
-   - [ ] Generación de PDF → ShareSheet comparte el dossier
-   - [ ] En un iPhone **sin** Apple Intelligence la app funciona en "Modo Básico"
+- [ ] Cuenta de desarrollador Apple (99 USD/ano) - TU ACCION
+- [x] Mac con Xcode 26 - lo tienes
+- [x] XcodeGen (brew install xcodegen)
+- [x] Bundle ID com.neximed.app - en project.yml y Info.plist
+- [ ] iPhone fisico para pruebas - TU ACCION
 
 ---
 
-## 📱 FASE B — Material App Store
+## FASE A - Build Verde (requiere tu Mac)
 
-- [ ] **Icono**: generar con PROMPT 1 de ``prompts.md`` → guardar como
-      ``Neximed/Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png`` (1024×1024, sin texto)
-- [ ] **Banner feature 16:9** (PROMPT 3) para la ficha de App Store
-- [ ] **Fondos de screenshots** (PROMPT 7) para 3-6 capturas en 6.7"
-- [ ] Capturar screenshots reales:
-      1. Dashboard con constantes y gráficas
-      2. Dictado por voz (onda + texto pulido)
-      3. Dossier PDF de 1 página
-      4. Laboratorio con marcadores escaneados
-      5. Asistente conversacional
-- [ ] **Política de privacidad pública** (obligatorio con HealthKit):
-      subir a GitHub Pages / Notion y copiar la URL
+- [ ] xcodegen generate
+- [ ] open Neximed.xcodeproj + seleccionar Team
+- [ ] Compilar Cmd+B y resolver errores
+- [ ] Probar en dispositivo real: Dashboard, dictado, OCR, camara, PDF
+- [ ] Probar en iPhone sin Apple Intelligence (Modo Basico)
 
 ---
 
-## 🧪 FASE C — TestFlight
+## FASE B - Material App Store
 
-- [ ] Subir build: Xcode → *Product > Archive* → *Distribute App* → TestFlight
-- [ ] Añadir testers internos (máx 100 usuarios)
-- [ ] Probar la instalación desde TestFlight en 2-3 dispositivos reales
-- [ ] Validar que **no se sube ningún dato personal** (todo on-device):
-      revisar en Ajustes → Privacidad que no hay actividad de red sospechosa
-- [ ] Testear el flujo completo: HealthKit → dictado → dossier → exportar
-
----
-
-## 🏛️ FASE D — App Store Connect y Revisión
-
-- [ ] Rellenar ficha: nombre "Neximed", subtítulo, categoría **Salud y bienestar**
-- [ ] **Cuestionario de datos de salud**: responder con veracidad
-      (la app NO usa datos para publicidad ni los vende)
-- [ ] Edad mínima: 4+, clasificación de contenido: sin restricciones
-- [ ] Subir screenshots, icono y política de privacidad
-- [ ] **Notas para la revisión** (importante para apps de salud):
-      explicar que es una herramienta de organización personal,
-      que NO diagnostica ni prescribe, y que todo es on-device
-- [ ] Enviar a revisión → esperar 24-72h
+- [x] Icono 1024x1024 - AppIcon.png listo en Assets.xcassets
+- [x] Banner feature 16:9 - feature-banner.jpeg listo
+- [x] Fondo de screenshots - screenshot-backdrop.jpeg listo
+- [ ] Capturar screenshots reales 6.7 pulgadas (5 pantallas) - requiere build
+- [x] Politica de privacidad publica - https://thetidy.github.io/neximed/privacy-policy/
 
 ---
 
-## 🚀 FASE E — Post-Publicación
+## FASE C - TestFlight
 
-- [ ] Verificar disponibilidad en la App Store
-- [ ] Monitorizar reseñas y crashes (Xcode Organizer / App Store Connect)
-- [ ] Planificar **v1.1 (Hito C)**: comparativa longitudinal, ficha ICE, App Intents Siri
+- [ ] Subir build (Archive > Distribute > TestFlight) - ver TESTFLIGHT-GUIDE.md
+- [ ] Anadir testers internos
+- [ ] Probar instalacion en 2-3 dispositivos
+- [ ] Verificar que no hay actividad de red
 
 ---
 
-## ⚠️ Recordatorios clave para revisión de Apple
+## FASE D - App Store Connect y Revision
 
-1. **Apps de salud** se revisan con lupa: evita cualquier lenguaje que sugiera diagnóstico o tratamiento.
-2. **HealthKit**: Apple prohíbe usar los datos para publicidad o venderlos a terceros.
-3. **Privacidad**: todas las descripciones de uso ya están en el Info.plist — no cambies su redacción de forma que oculte el propósito.
-4. **FoundationModels**: si el dispositivo no lo soporta, la app debe degradarse (ya implementado con ``aiAvailable``).
-5. **Sin servidores**: la app es 100% on-device — refuerza esto en las notas de revisión.
+- [ ] Crear app con datos de APPLE-SUBMISSION.md (seccion 1)
+- [ ] Pegar descripcion (seccion 2)
+- [ ] Pegar notas de revision (seccion 3)
+- [ ] Responder cuestionario de salud (seccion 4)
+- [ ] Subir icono y screenshots
+- [ ] Enviar a revision (24-72h)
+
+---
+
+## Documentos de apoyo
+
+- APPLE-SUBMISSION.md - TODO el texto listo para pegar
+- TESTFLIGHT-GUIDE.md - pasos exactos en tu Mac
+- Politica de privacidad: https://thetidy.github.io/neximed/privacy-policy/
