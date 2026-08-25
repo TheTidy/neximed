@@ -2,7 +2,7 @@
 // OCR de analíticas de laboratorio con Vision + interpretación con Foundation Models
 // Soporta PDFs importados, fotos de informes y conexión FHIR
 
-import Vision
+@preconcurrency import Vision
 import UIKit
 import Foundation
 import PDFKit
@@ -73,8 +73,8 @@ final class LabScanner {
                 allText += pageText + "\n"
             } else {
                 // Si el PDF es escaneado (imagen), usar OCR
-                if let thumbnail = page.thumbnail(of: CGSize(width: 1200, height: 1600), for: .mediaBox),
-                   let cgImage = thumbnail.cgImage {
+                let thumbnail = page.thumbnail(of: CGSize(width: 1200, height: 1600), for: .mediaBox)
+                if let cgImage = thumbnail.cgImage {
                     let uiImage = UIImage(cgImage: cgImage)
                     let pageText = try await performOCR(on: uiImage)
                     allText += pageText + "\n"

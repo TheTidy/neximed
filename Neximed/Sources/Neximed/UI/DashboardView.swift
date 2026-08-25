@@ -97,7 +97,15 @@ struct DashboardView: View {
             // 1. Datos de HealthKit primero (rápido, queries en paralelo)
             await loadData()
 
-            // 2. Preparación de consulta en Task independiente: no bloquea el dashboard
+            // 2. Deep-link neximed://dossier: generar y compartir el dossier
+            //    nada más abrir (la señal la pone NeximedApp.onOpenURL)
+            let defaults = UserDefaults.standard
+            if defaults.bool(forKey: NeximedLaunchAction.dossierKey) {
+                defaults.set(false, forKey: NeximedLaunchAction.dossierKey)
+                exportDoctorPDF()
+            }
+
+            // 3. Preparación de consulta en Task independiente: no bloquea el dashboard
             //    (la IA puede tardar; el usuario ve los datos al instante)
             doctorPrep = await agent.generateDoctorVisitPrep()
         }
@@ -194,6 +202,8 @@ struct DashboardView: View {
                         .stroke(Color.msAccent.opacity(0.3), lineWidth: 1)
                 )
             }
+            .accessibilityLabel("Dictar síntoma o nota")
+            .accessibilityHint("Abre el dictado por voz")
 
             // Botón 2: Generar Dossier para el Médico
             Button(action: exportDoctorPDF) {
@@ -238,6 +248,8 @@ struct DashboardView: View {
                 .shadow(color: Color.msAccent.opacity(0.3), radius: 10, y: 3)
             }
             .disabled(isGeneratingPDF)
+            .accessibilityLabel("Generar dossier para mi médico")
+            .accessibilityHint("Crea el PDF de 1 página y abre el menú para compartirlo")
 
             // Botón 3: Check-in diario de bienestar
             Button(action: { showCheckIn = true }) {

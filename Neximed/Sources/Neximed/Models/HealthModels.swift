@@ -165,7 +165,7 @@ final class MedicationEntry {
     /// Registro de efectos secundarios experimentados por el usuario
     var experiencedSideEffects: [String]
 
-    enum MedicationType: String, Codable {
+    enum MedicationType: String, Codable, CaseIterable {
         case prescription = "Prescripción médica"
         case supplement = "Suplemento"
         case asNeeded = "A demanda"
@@ -315,7 +315,7 @@ final class DoctorVisitRecord {
 
 // MARK: - Analíticas de Laboratorio y Biomarcadores Históricos
 
-struct LabResult: Codable, Identifiable, Sendable {
+struct LabResult: Codable, Identifiable, Sendable, Equatable {
     let id: UUID
     let date: Date
     let laboratoryName: String?
@@ -323,14 +323,14 @@ struct LabResult: Codable, Identifiable, Sendable {
     var source: LabSource
     let rawImageData: Data?
 
-    enum LabSource: String, Codable {
+    enum LabSource: String, Codable, Equatable {
         case ocr = "ocr"
         case fhir = "fhir"
         case manual = "manual"
     }
 }
 
-struct LabMarker: Codable, Identifiable, Sendable {
+struct LabMarker: Codable, Identifiable, Sendable, Equatable {
     let id: UUID
     let name: String                  // Ej: "Colesterol LDL", "Ferritina"
     let value: Double
@@ -345,7 +345,7 @@ struct LabMarker: Codable, Identifiable, Sendable {
         return value >= min && value <= max
     }
 
-    enum MarkerStatus: String, Codable {
+    enum MarkerStatus: String, Codable, Equatable {
         case normal, low, high, critical
     }
 }

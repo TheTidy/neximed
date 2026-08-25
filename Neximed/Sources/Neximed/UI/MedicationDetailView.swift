@@ -4,6 +4,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct MedicationDetailView: View {
 
@@ -52,8 +53,11 @@ struct MedicationDetailView: View {
                 VStack(alignment: .leading, spacing: 10) {
                     sectionTitle("Horarios de toma", icon: "clock.fill")
 
-                    // Lista de horarios con DatePicker inline
-                    ForEach(medication.intakeTimes.indices, id: \.self) { index in
+                    // Lista de horarios con DatePicker inline.
+                    // Usamos Array.enumerated con id estable para evitar el crash
+                    // de SwiftUI al borrar elementos con ForEach(indices, id: \.self).
+                    let intakeTimes = medication.intakeTimes
+                    ForEach(Array(intakeTimes.enumerated()), id: \.element) { index, time in
                         HStack {
                             Image(systemName: "clock")
                                 .foregroundStyle(.msAccent)
@@ -182,7 +186,7 @@ struct MedicationDetailView: View {
                     // Botones rápidos
                     HStack(spacing: 10) {
                         Button { logDose(skipped: false) } label: {
-                            Label("Tomada", systemImage: "checkmark");
+                            Label("Tomada", systemImage: "checkmark")
                                 .font(.msBodyEmphasized)
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity)
@@ -191,7 +195,7 @@ struct MedicationDetailView: View {
                                 .clipShape(RoundedRectangle(cornerRadius: 12))
                         }
                         Button { logDose(skipped: true) } label: {
-                            Label("Omitida", systemImage: "xmark");
+                            Label("Omitida", systemImage: "xmark")
                                 .font(.msBodyEmphasized)
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity)
@@ -237,7 +241,7 @@ struct MedicationDetailView: View {
 
     private func timeFromString(_ s: String) -> Date {
         let comps = s.split(separator: ":").compactMap { Int($0) }
-        var date = Calendar.current.date(bySettingHour: comps.count > 0 ? comps[0] : 8, minute: comps.count > 1 ? comps[1] : 0, second: 0, of: Date()) ?? Date()
+        let date = Calendar.current.date(bySettingHour: comps.count > 0 ? comps[0] : 8, minute: comps.count > 1 ? comps[1] : 0, second: 0, of: Date()) ?? Date()
         return date
     }
 
@@ -276,6 +280,10 @@ struct MedicationDetailView: View {
         )
         modelContext.insert(log)
         try? modelContext.save()
+
+        // Haptic de confirmación al registrar la toma
+        let impact = UINotificationFeedbackGenerator()
+        impact.notificationOccurred(skipped ? .warning : .success)
     }
 }
 

@@ -128,16 +128,10 @@ final class HealthKitManager {
         )
 
         // Tipos de categoría
-        if let sleepType = HKCategoryType(.sleepAnalysis) {
-            types.insert(sleepType)
-        }
-        if let mindfulType = HKCategoryType(.mindfulSession) {
-            types.insert(mindfulType)
-        }
+        types.insert(HKCategoryType(.sleepAnalysis))
+        types.insert(HKCategoryType(.mindfulSession))
         // ECG
-        if let ecgType = HKElectrocardiogramType.electrocardiogramType() {
-            types.insert(ecgType)
-        }
+        types.insert(HKElectrocardiogramType.electrocardiogramType())
         // NOTA: los registros clínicos FHIR (HKClinicalType) requieren el
         // entitlement especial "health-records" aprobado por Apple.
         // Se añadirán en Fase 3 (exportación FHIR JSON) para no bloquear la revisión.
@@ -217,8 +211,7 @@ final class HealthKitManager {
                 restingHeartRate: rhrData[dateKey],
                 heartRateVariability: hrvData[dateKey],
                 averageHeartRate: avgHRData[dateKey],
-                peakHeartRate: nil,
-                ecgClassification: nil
+                peakHeartRate: nil
             ))
         }
         return snapshots.sorted { $0.date < $1.date }
@@ -227,9 +220,7 @@ final class HealthKitManager {
     // MARK: - Queries de Sueño
 
     func fetchSleepSummary(for days: Int = 7) async throws -> [SleepSnapshot] {
-        guard let sleepType = HKCategoryType(.sleepAnalysis) else {
-            throw HealthKitError.typeUnavailable
-        }
+        let sleepType = HKCategoryType(.sleepAnalysis)
 
         let calendar = Calendar.current
         let end = Date()
@@ -280,9 +271,7 @@ final class HealthKitManager {
                         remMinutes: rem,
                         deepMinutes: deep,
                         coreMinutes: core,
-                        awakMinutes: awake,
-                        sleepScore: nil,
-                        consistencyScore: nil
+                        awakMinutes: awake
                     )
                 }
                 continuation.resume(returning: snapshots.sorted { $0.date < $1.date })
@@ -319,9 +308,7 @@ final class HealthKitManager {
                 carbohydrates: carbData[dateKey] ?? 0,
                 fat: fatData[dateKey] ?? 0,
                 fiber: fiberData[dateKey],
-                sugar: nil,
                 water: waterData[dateKey],
-                sodium: nil,
                 meals: []
             ))
         }
@@ -365,12 +352,18 @@ final class HealthKitManager {
         var components = DateComponents()
         components.day = 1
 
+        // CRÍTICO: HealthKit lanza una NSException (crash) si se pide .cumulativeSum
+        // sobre un tipo discreto (o viceversa) — hay que acertar el tipo de
+        // agregación exacto por identificador, no solo para heartRate/HRV.
+        let discreteIdentifiers: Set<HKQuantityTypeIdentifier> = [
+            .heartRate, .heartRateVariabilitySDNN, .restingHeartRate, .walkingHeartRateAverage
+        ]
+
         return try await withCheckedThrowingContinuation { continuation in
             let query = HKStatisticsCollectionQuery(
                 quantityType: quantityType,
                 quantitySamplePredicate: predicate,
-                options: identifier == .heartRate || identifier == .heartRateVariabilitySDNN
-                    ? .discreteAverage : .cumulativeSum,
+                options: discreteIdentifiers.contains(identifier) ? .discreteAverage : .cumulativeSum,
                 anchorDate: calendar.startOfDay(for: end),
                 intervalComponents: components
             )
@@ -410,7 +403,7 @@ final class HealthKitManager {
             Fecha de análisis: \(generatedAt.formatted())
 
             ACTIVIDAD:
-            - Pasos promedio/día: \(activity.map(\.steps).average.formatted(.number.precision(.fractionLength(0))))
+            - Pasos promedio/día: \(activity.map { Double($0.steps) }.average.formatted(.number.precision(.fractionLength(0))))
             - Calorías activas promedio/día: \(activity.map(\.activeCalories).average.formatted(.number.precision(.fractionLength(0)))) kcal
             - Minutos de ejercicio/día: \(activity.map { Double($0.exerciseMinutes) }.average.formatted(.number.precision(.fractionLength(0))))
 
@@ -432,7 +425,22 @@ final class HealthKitManager {
         }
     }
 
+    /// Si ya se precargó el cache (splash), reutiliza esos datos en vez de
+    /// volver a consultar HealthKit — evita duplicar las mismas queries que
+    /// preloadData() ya hizo (esto duplicaba el tiempo de arranque: la barra
+    /// llegaba a "Preparando tu asistente" y el paso volvía a pedir a
+    /// HealthKit los mismos 14 días de actividad/cardio/sueño/nutrición).
     func buildHealthContext(days: Int = 7) async throws -> HealthContext {
+        if didPreload {
+            return HealthContext(
+                activity: Array(cachedActivity.suffix(days)),
+                cardio: Array(cachedCardio.suffix(days)),
+                sleep: Array(cachedSleep.suffix(days)),
+                nutrition: Array(cachedNutrition.suffix(days)),
+                generatedAt: Date()
+            )
+        }
+
         async let activity = fetchActivitySummary(for: days)
         async let cardio = fetchCardioSummary(for: days)
         async let sleep = fetchSleepSummary(for: days)

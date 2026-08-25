@@ -8,7 +8,7 @@
 // TODO es 100% local: sin servidores, sin push remoto.
 
 import Foundation
-import UserNotifications
+@preconcurrency import UserNotifications
 import Observation
 
 @MainActor
@@ -151,8 +151,17 @@ final class NotificationManager {
         let request = UNNotificationRequest(identifier: type.rawValue, content: content, trigger: trigger)
 
         center.add(request)
+        // Marcar el tipo como activo (scheduleDaily usa la hora; aquí un centinela)
+        defaults.set(1, forKey: "reminder.\(type.rawValue)")
         // Guardar timestamp para mostrarlo en la UI
         defaults.set(date.timeIntervalSince1970, forKey: "reminder.appointment.date")
+    }
+
+    /// Fecha programada de la próxima cita (nil si no hay ninguna)
+    func storedAppointmentDate() -> Date? {
+        let timestamp = defaults.double(forKey: "reminder.appointment.date")
+        guard timestamp > 0 else { return nil }
+        return Date(timeIntervalSince1970: timestamp)
     }
 
     /// Programa el intervalo de hidratación (cada N horas entre hora inicio y fin)

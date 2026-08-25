@@ -10,6 +10,7 @@ struct RemindersView: View {
     // Horarios configurables
     @State private var medicationTime = Date()
     @State private var checkInTime = Date()
+    @State private var appointmentDate = Date()
     @State private var hydrationInterval = 2
     @State private var hydrationStart = Date()
     @State private var hydrationEnd = Date()
@@ -112,7 +113,7 @@ struct RemindersView: View {
         }
     }
 
-    // MARK: - Cita médica (pendiente de conectar con DoctorVisitRecord)
+    // MARK: - Cita médica (recordatorio único en la fecha elegida)
 
     private var appointmentCard: some View {
         ReminderCard(
@@ -122,17 +123,45 @@ struct RemindersView: View {
             isEnabled: notifications.isEnabled(.appointment),
             onToggle: { enabled in
                 if enabled {
-                    // Se programa al crear una visita (DoctorVisitRecord).
-                    // Aquí solo se informa al usuario.
+                    notifications.scheduleOneShot(.appointment, at: appointmentDate)
                 } else {
                     notifications.cancel(.appointment)
                 }
             }
         ) {
-            Text("Se activa al registrar una próxima consulta en el diario médico.")
-                .font(.msCaption)
-                .foregroundStyle(.msTextSecondary)
+            VStack(alignment: .leading, spacing: 10) {
+                DatePicker(
+                    "Fecha de la cita",
+                    selection: $appointmentDate,
+                    displayedComponents: [.date, .hourAndMinute]
+                )
+                if let scheduled = notifications.storedAppointmentDate() {
+                    Text("Recordatorio el \(scheduled.formatted(date: .abbreviated, time: .shortened))")
+                        .font(.msCaption)
+                        .foregroundStyle(.msTextSecondary)
+                }
+            }
         }
+        .onAppear {
+            if let stored = notifications.storedAppointmentDate() {
+                appointmentDate = stored
+            } else {
+                appointmentDate = Self.defaultAppointmentDate()
+            }
+        }
+        // Si el usuario cambia la fecha con el recordatorio activo, se reprograma
+        .onChange(of: appointmentDate) { _, newDate in
+            if notifications.isEnabled(.appointment) {
+                notifications.scheduleOneShot(.appointment, at: newDate)
+            }
+        }
+    }
+
+    /// Fecha por defecto: mañana a las 09:00 (suficiente margen para preparar el dossier)
+    private static func defaultAppointmentDate() -> Date {
+        let calendar = Calendar.current
+        let tomorrow = calendar.date(byAdding: .day, value: 1, to: Date()) ?? Date()
+        return calendar.date(bySettingHour: 9, minute: 0, second: 0, of: tomorrow) ?? tomorrow
     }
 
     private func minutes(_ date: Date) -> Int {

@@ -3,6 +3,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct VoiceDictationSheet: View {
 
@@ -320,10 +321,23 @@ struct VoiceDictationSheet: View {
             modelContext.insert(visit)
 
         case .medication, .general:
-            break
+            // Guardar como síntoma genérico para no perder la nota dictada
+            let entry = SymptomEntry(
+                symptomName: refinedResult?.titleSummary ?? "Nota",
+                intensity: .mild,
+                contextTrigger: refinedResult?.extractedTags.joined(separator: ", "),
+                rawDictation: finalText
+            )
+            modelContext.insert(entry)
         }
 
+        // PERSISTIR: sin save() los datos se pierden al cerrar la app
+        try? modelContext.save()
+
         onSaved?(finalText)
+        // Haptic de confirmación (solo cuando realmente se guarda algo)
+        let impact = UINotificationFeedbackGenerator()
+        impact.notificationOccurred(.success)
         dismiss()
     }
 }

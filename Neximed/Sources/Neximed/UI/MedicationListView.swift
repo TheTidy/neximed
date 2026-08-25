@@ -185,7 +185,7 @@ struct AddMedicationSheet: View {
                     onAdd(med)
                     dismiss()
                 } label: {
-                    Text("Añadir");
+                    Text("Añadir")
                         .font(.msBodyEmphasized)
                         .foregroundStyle(.white)
                         .frame(maxWidth: .infinity)

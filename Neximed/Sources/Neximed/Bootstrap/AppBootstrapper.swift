@@ -78,6 +78,9 @@ final class AppBootstrapper {
         await HealthAgent.shared.startSession(profile: profile)
         progress = 0.90
 
+        // Paso 5b: Modo Demo (solo DEBUG) — datos ficticios la primera vez
+        DemoDataSeeder.seedIfNeeded(modelContext: modelContext)
+
         // Paso 6: Finalización
         phaseLabel = "Listo. Bienvenido a Neximed"
         progress = 1.0

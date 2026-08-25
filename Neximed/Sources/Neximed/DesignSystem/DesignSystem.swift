@@ -44,18 +44,46 @@ extension Color {
     static let msTextTertiary   = Color.white.opacity(0.40)
 }
 
+// Puente para el azúcar sintáctico de punto (.msAccent, .msTextPrimary, …) en
+// modificadores genéricos como foregroundStyle(_:)/fill(_:), que resuelven el
+// miembro estático contra ShapeStyle y no contra Color directamente.
+extension ShapeStyle where Self == Color {
+    static var msBackground: Color { .msBackground }
+    static var msSurface: Color { .msSurface }
+    static var msSurfaceElevated: Color { .msSurfaceElevated }
+    static var msBorder: Color { .msBorder }
+    static var msAccent: Color { .msAccent }
+    static var msAccentSecondary: Color { .msAccentSecondary }
+    static var msCardio: Color { .msCardio }
+    static var msSleep: Color { .msSleep }
+    static var msNutrition: Color { .msNutrition }
+    static var msActivity: Color { .msActivity }
+    static var msLabs: Color { .msLabs }
+    static var msGood: Color { .msGood }
+    static var msWarning: Color { .msWarning }
+    static var msDanger: Color { .msDanger }
+    static var msTextPrimary: Color { .msTextPrimary }
+    static var msTextSecondary: Color { .msTextSecondary }
+    static var msTextTertiary: Color { .msTextTertiary }
+}
+
 // MARK: - Tipografía
+//
+// Estilos SEMÁNTICOS (Font.system(_:design:) y Font.callout/…): escalan con
+// Dynamic Type (accesibilidad). Antes se usaban tamaños fijos (system(size:)),
+// que iOS NO escala con la configuración de letra del usuario. Con los estilos
+// semánticos, el texto crece en tamaños grandes sin romper el diseño.
 
 extension Font {
     // Display — para títulos grandes y métricas
-    static let msDisplay        = Font.system(size: 48, weight: .bold, design: .rounded)
-    static let msDisplayMedium  = Font.system(size: 34, weight: .bold, design: .rounded)
-    static let msTitle          = Font.system(size: 24, weight: .semibold, design: .rounded)
-    static let msHeadline       = Font.system(size: 18, weight: .semibold, design: .rounded)
-    static let msBody           = Font.system(size: 15, weight: .regular, design: .default)
-    static let msBodyEmphasized = Font.system(size: 15, weight: .medium, design: .default)
-    static let msCaption        = Font.system(size: 12, weight: .medium, design: .rounded)
-    static let msMetric         = Font.system(size: 38, weight: .heavy, design: .rounded)
+    static let msDisplay        = Font.system(.largeTitle, design: .rounded).weight(.bold)   // ~34pt
+    static let msDisplayMedium  = Font.system(.largeTitle, design: .rounded)                  // ~34pt
+    static let msTitle          = Font.system(.title2, design: .rounded).weight(.semibold)    // ~22pt
+    static let msHeadline       = Font.system(.headline, design: .rounded)                    // ~17pt
+    static let msBody           = Font.callout                                                // ~16pt
+    static let msBodyEmphasized = Font.callout.weight(.medium)                                // ~16pt
+    static let msCaption        = Font.system(.caption, design: .rounded)                     // ~12pt
+    static let msMetric         = Font.system(.largeTitle, design: .rounded).weight(.heavy)   // ~34pt
 }
 
 // MARK: - Gradientes
@@ -109,6 +137,7 @@ struct GlassCard: ViewModifier {
 
 struct PulseModifier: ViewModifier {
     @State private var isPulsing = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     var color: Color
 
     func body(content: Content) -> some View {
@@ -119,11 +148,14 @@ struct PulseModifier: ViewModifier {
                     .scaleEffect(isPulsing ? 1.4 : 1.0)
                     .opacity(isPulsing ? 0 : 0.5)
                     .animation(
-                        Animation.easeInOut(duration: 1.5).repeatForever(autoreverses: false),
+                        reduceMotion ? nil : Animation.easeInOut(duration: 1.5).repeatForever(autoreverses: false),
                         value: isPulsing
                     )
             )
-            .onAppear { isPulsing = true }
+            .onAppear {
+                // Reduce Motion activado: mostrar el halo estático sin animar
+                isPulsing = !reduceMotion
+            }
     }
 }
 

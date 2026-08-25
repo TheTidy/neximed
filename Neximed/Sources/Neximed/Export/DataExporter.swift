@@ -9,7 +9,7 @@ struct DataExporter {
     static let shared = DataExporter()
 
     /// Salto de línea para CSV (CRLF, compatible con Excel)
-    private var nl: String { Character(13).description + Character(10).description }
+    private var nl: String { "\r\n" }
 
     // MARK: - CSV
 

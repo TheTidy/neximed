@@ -202,7 +202,7 @@ aviso legal informativo.
 |-----------|-------|
 | Deployment target | iOS 17.0 (para máxima cobertura) |
 | IA on-device | iOS 26+ + dispositivo con Apple Intelligence (iPhone 15 Pro o posterior; iPads con M1 o posterior) |
-| Entitlement | com.apple.developer.foundation-models (ya en Neximed.entitlements) |
+| Entitlement | Ninguno — FoundationModels no requiere entitlement de app. `com.apple.developer.foundation-models` no es un entitlement real (confirmado por Xcode al firmar: "not found... not a valid entitlement"); el acceso se controla en runtime por capacidad del dispositivo |
 | Regional | Apple Intelligence requiere región e idioma soportados (Apple lo amplía progresivamente) |
 | Compilación | Xcode 26+ con SDK iOS 26 (para que canImport(FoundationModels) sea true) |
 | Simulador | FoundationModels NO disponible en simulador → probar en dispositivo físico |
@@ -241,28 +241,28 @@ principal de muchos usuarios**. La app debe verse completa y útil en Modo Bási
 - [ ] session.respond(to: Prompt(...), generating: MiSchema.self) → response.content
 - [ ] Los structs @Generable nombrados *Schema dentro del #if (no chocan con los planos)
 - [ ] Los structs planos (RefinedDictationResult, etc.) fuera del #if (los usa la UI siempre)
-- [ ] analyzeFoodPhoto marcado con TODO: validar ModelContentItem.image en Xcode 26 (ver 8)
-- [ ] Entitlement com.apple.developer.foundation-models activo en el target
+- [x] analyzeFoodPhoto: confirmado que FoundationModels no soporta imágenes (ver 8) — fallback de confianza 0 es el comportamiento final
+- [x] Sin entitlement de FoundationModels en el target (no existe; ver §5)
 - [ ] Build con Xcode 26, deploy target 17.0 → probar en iPhone 15 Pro+ (IA) y iPhone 13 (Modo Básico)
 
-## 8. Puntos abiertos a validar en el build real
+## 8. Puntos abiertos — validados con build real (Xcode 26 / iOS 26.5 SDK, 2026-08-24)
 
-| # | Punto | Estado | Acción |
+| # | Punto | Estado | Conclusión |
 |---|-------|--------|--------|
-| 1 | SystemLanguageModel.default vs SystemLanguageModel() | Ambos patrones vistos en fuentes | Verificar en Xcode 26; cambiar a SystemLanguageModel() si el compilador lo pide |
-| 2 | analyzeFoodPhoto con imagen real | Sin implementar imagen → devuelve análisis de confianza 0 | Validar ModelContentItem.image / adjuntar imagen al prompt en Xcode 26 |
+| 1 | SystemLanguageModel.default vs SystemLanguageModel() | ✅ RESUELTO | `SystemLanguageModel.default` compila (HealthAgent.swift:157). No hace falta cambiar a `SystemLanguageModel()`. |
+| 2 | analyzeFoodPhoto con imagen real | ✅ RESUELTO — no es viable | Inspeccionado el `.swiftinterface` de `FoundationModels.framework` (iOS 26.5 SDK): `Prompt` y `LanguageModelSession` son estrictamente de texto, no existe `ModelContentItem.image` ni ningún tipo que acepte imágenes. El framework on-device de Apple **no soporta entrada visual** a día de hoy. El fallback de confianza 0 en `HealthAgent.analyzeFoodPhoto` es el comportamiento correcto y definitivo (no un placeholder pendiente de completar). Si se quiere una estimación real a partir de la foto, la vía es Vision (`ClassifyImageRequest`, iOS 18+) para clasificación general de escena, no un LLM — evaluar como mejora futura fuera del alcance de FoundationModels. |
 | 3 | interpretLabResults con texto plano | ✅ RESUELTO v2 — ahora usa LabInterpretationSchema (@Generable) | Confirmado en código |
-| 4 | @available en propiedades stored de LanguageModelSession | Implementado con #if canImport | Confirmar que el patrón compila (propiedad opcional con @available) |
-| 5 | Errores de la sesión (cómo detectar "modelo no disponible") | startSession captura con do/catch y setea aiAvailable=false | Probar en dispositivo sin Apple Intelligence |
+| 4 | @available en propiedades stored de LanguageModelSession | ✅ RESUELTO | Una propiedad *stored* no puede llevar `@available` (restricción del lenguaje, independiente de `@Observable`). Se guarda como `Any?` (`_session`) sin tracking y se expone como *computed property* tipada con `@available` que delega en el respaldo (HealthAgent.swift). |
+| 5 | Errores de la sesión (cómo detectar "modelo no disponible") | Implementado | startSession captura con do/catch y setea aiAvailable=false. Pendiente de probar en dispositivo físico sin Apple Intelligence (no disponible en este entorno de build). |
 
-## 9. Log de verificación de fuentes (sesión de investigación)
+## 9. Log de verificación de fuentes
 
-- ✅ LanguageModelSession.init(model:tools:instructions:) — confirmado en Apple Developer Documentation
-- ✅ SystemLanguageModel — confirmado en Apple Developer Documentation
+- ✅ LanguageModelSession.init(model:tools:instructions:) — confirmado en Apple Developer Documentation y compila
+- ✅ SystemLanguageModel.default — confirmado en Apple Developer Documentation y compila
 - ✅ respond(to:generating:includeSchemaInPrompt:options:) — confirmado en Apple Developer Documentation
 - ✅ Patrón let response = try await session... + .content — confirmado en WWDC25 Session 286 (Meet the Foundation Models framework)
 - ✅ @Generable / @Guide — confirmado en WWDC25 Sessions 286 y 301
 - ✅ FoundationModels no disponible en simulador — requiere dispositivo físico con Apple Intelligence
-- ✅ Entitlement requerido: com.apple.developer.foundation-models
-- ⏳ SystemLanguageModel.default vs SystemLanguageModel() — ambos patrones observados, validar en Xcode 26
-- ⏳ ModelContentItem.image para analizar fotos — pendiente de validación
+- ✅ Sin entitlement requerido para FoundationModels — confirmado con Xcode real al firmar ("com.apple.developer.foundation-models not found... not a valid entitlement, should be removed")
+- ✅ SystemLanguageModel.default — confirmado compilando con Xcode 26 / iOS 26.5 SDK
+- ✅ FoundationModels no expone ninguna API de imagen — confirmado inspeccionando el `.swiftinterface` del framework en el SDK de iOS 26.5

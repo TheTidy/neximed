@@ -13,7 +13,7 @@ options:
 settings:
   base:
     SWIFT_VERSION: "6.0"
-    SWIFT_STRICT_CONCURRENCY: minimal
+    SWIFT_STRICT_CONCURRENCY: complete
     SWIFT_APPROACHABLE_CONCURRENCY: YES
     DEVELOPMENT_TEAM: ""
     CODE_SIGN_STYLE: Automatic
@@ -29,9 +29,16 @@ targets:
   Neximed:
     type: application
     platform: iOS
+    # NOTA: la clave `resources:` separada está rota en la instalación local
+    # de xcodegen (2.45.3 y 2.46.0 probados) — genera el .xcodeproj sin
+    # ninguna fase "Copy Bundle Resources", así que Assets.xcassets nunca
+    # llega al bundle (sin icono, sin pantalla de lanzamiento, sin imágenes
+    # de fondo). Workaround verificado: declarar la carpeta de recursos como
+    # una entrada más de `sources:` — xcodegen SÍ detecta y enruta
+    # correctamente los no-.swift (Assets.xcassets, Images, xcstrings) a
+    # Resources cuando están dentro de `sources:`.
     sources:
       - path: Neximed/Sources/Neximed
-    resources:
       - path: Neximed/Resources
         excludes:
           - Info.plist
@@ -51,8 +58,14 @@ targets:
         NSSpeechRecognitionUsageDescription: Neximed utiliza el reconocimiento de voz en el dispositivo para transcribir y pulir tus notas de salud con IA antes de guardarlas.
         NSCameraUsageDescription: Neximed usa la cámara para escanear informes médicos en papel o platos de comida.
         NSPhotoLibraryUsageDescription: Neximed permite importar fotos o PDFs de analíticas de laboratorio desde tu biblioteca.
-        UILaunchScreen: {}
-        UIRequiresFullScreen: false
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+          UIImageName: splash-centerpiece
+        CFBundleURLTypes:
+          - CFBundleURLName: com.neximed.app
+            CFBundleURLSchemes:
+              - neximed
+        UIRequiresFullScreen: true
         UIStatusBarStyle: UIStatusBarStyleLightContent
         UIUserInterfaceStyle: Dark
         UIRequiredDeviceCapabilities:
@@ -64,17 +77,47 @@ targets:
           - UIInterfaceOrientationPortrait
     entitlements:
       path: Neximed/Resources/Neximed.entitlements
+      # XcodeGen regenera este archivo desde properties en cada xcodegen generate.
+      # Sin esto, una regeneracion sobrescribia el fichero con un dict vacio
+      # y la app perdia HealthKit y Siri.
+      #
+      # NOTA: com.apple.developer.foundation-models NO es un entitlement real.
+      # Apple Intelligence / FoundationModels no requiere entitlement de app —
+      # el acceso se controla en runtime por capacidad del dispositivo
+      # (SystemLanguageModel.default.availability), no por provisioning.
+      # Se quitó tras confirmar el error de Xcode: "not found and could not
+      # be included in profile... not a valid entitlement".
+      properties:
+        com.apple.developer.healthkit: true
+        com.apple.developer.siri: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.neximed.app
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
 
+  NeximedTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: NeximedTests
+    dependencies:
+      - target: Neximed
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.neximed.app.tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: "$(BUILT_PRODUCTS_DIR)/Neximed.app/Neximed"
+        BUNDLE_LOADER: "$(TEST_HOST)"
+
 schemes:
   Neximed:
     build:
       targets:
         Neximed: all
+    test:
+      targets:
+        - NeximedTests
     run:
       config: Debug
     archive:

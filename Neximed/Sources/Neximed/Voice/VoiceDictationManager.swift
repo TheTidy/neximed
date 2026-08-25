@@ -14,7 +14,13 @@ final class VoiceDictationManager {
     static let shared = VoiceDictationManager()
 
     /// Suscripción al cambio de idioma (para recrear el reconocedor de voz)
-    private var languageObserver: NSObjectProtocol?
+    /// nonisolated(unsafe): deinit no está aislado al actor, y necesita
+    /// leer este token para darse de baja del NotificationCenter.
+    // nonisolated(unsafe): necesario para acceder desde deinit (no aislado).
+    // NOTA: el compilador sugiere usar nonisolated a secas, pero eso da error
+    // (no se puede aplicar a propiedades stored mutables); quitarlo rompe deinit.
+    // Es un falso positivo del diagnóstico de Swift 6.2 con @Observable.
+    nonisolated(unsafe) private var languageObserver: NSObjectProtocol?
 
     var isRecording = false
     var isProcessing = false
@@ -26,20 +32,23 @@ final class VoiceDictationManager {
     /// No es observable: solo lo lee/escribe el callback de audio.
     /// nonisolated(unsafe): accedida desde el hilo de audio en tiempo real
     /// (patrón de Apple para SFSpeechAudioBufferRecognitionRequest — SpeakToMe).
+    // nonisolated(unsafe): accedida desde el callback de audio (hilo en tiempo real)
     nonisolated(unsafe) private var lastAudioLevel: Float = 0.0
 
     private var audioEngine = AVAudioEngine()
 
     /// Reconocedor creado según el idioma activo de la app (LanguageManager).
     /// Es mutable: se recrea al cambiar el idioma (notificación neximedLanguageChanged).
-    nonisolated private var speechRecognizer = Self.makeRecognizer()
+    private var speechRecognizer = VoiceDictationManager.makeRecognizer()
 
+    // nonisolated(unsafe): accedido desde el callback de audio (patrón SpeakToMe de Apple)
     nonisolated(unsafe) private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
     private var recognitionTask: SFSpeechRecognitionTask?
 
     /// Crea el reconocedor con el locale de la app; si ese idioma no está
     /// descargado, usa el primer idioma soportado por el dispositivo.
-    nonisolated private static func makeRecognizer() -> SFSpeechRecognizer? {
+    @MainActor
+    private static func makeRecognizer() -> SFSpeechRecognizer? {
         let appLocale = LanguageManager.shared.currentLanguage.locale
         if let recognizer = SFSpeechRecognizer(locale: appLocale), recognizer.isAvailable {
             return recognizer

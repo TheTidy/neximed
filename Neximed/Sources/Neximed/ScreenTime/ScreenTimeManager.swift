@@ -15,7 +15,7 @@ import Foundation
 import Observation
 
 #if canImport(FamilyControls)
-import FamilyControls
+@preconcurrency import FamilyControls
 #endif
 #if canImport(DeviceActivity)
 import DeviceActivity

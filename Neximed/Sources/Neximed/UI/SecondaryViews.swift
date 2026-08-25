@@ -6,6 +6,7 @@ import SwiftData
 import PhotosUI
 import Charts
 import PDFKit
+import UIKit
 
 // ============================================================
 // MARK: - NutritionView
@@ -24,6 +25,8 @@ struct NutritionView: View {
     @State private var barcodeProduct: FoodAnalyzer.BarcodeProduct?
     @State private var isScanningBarcode = false
     @State private var showFoodLog = false
+    @State private var showCamera = false
+    @State private var cameraAvailable = UIImagePickerController.isSourceTypeAvailable(.camera)
     @Environment(\.modelContext) private var modelContext
 
     var body: some View {
@@ -107,34 +110,40 @@ struct NutritionView: View {
                 Spacer()
             }
 
-            // Área de imagen
-            PhotosPicker(selection: $selectedPhoto, matching: .images) {
-                ZStack {
-                    RoundedRectangle(cornerRadius: 16, style: .continuous)
-                        .fill(Color.msSurface)
-                        .frame(height: 180)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: 16)
-                                .stroke(Color.msNutrition.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [6]))
-                        )
+            // Área de imagen: el contenido se renderiza en el body (MainActor)
+            // y el PhotosPicker actúa como capa transparente encima, evitando
+            // leer estado aislado al actor dentro del closure del label.
+            ZStack {
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
+                    .fill(Color.msSurface)
+                    .frame(height: 180)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 16)
+                            .stroke(Color.msNutrition.opacity(0.3), style: StrokeStyle(lineWidth: 1.5, dash: [6]))
+                    )
 
-                    if let image = capturedImage {
-                        Image(uiImage: image)
-                            .resizable()
-                            .scaledToFill()
-                            .frame(height: 180)
-                            .clipShape(RoundedRectangle(cornerRadius: 16))
-                    } else {
-                        VStack(spacing: 8) {
-                            Image(systemName: "camera.fill")
-                                .font(.system(size: 32))
-                                .foregroundStyle(Color.msNutrition.opacity(0.6))
-                            Text("Toca para fotografiar tu plato")
-                                .font(.msCaption)
-                                .foregroundStyle(.msTextSecondary)
-                        }
+                if let image = capturedImage {
+                    Image(uiImage: image)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(height: 180)
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                } else {
+                    VStack(spacing: 8) {
+                        Image(systemName: "camera.fill")
+                            .font(.system(size: 32))
+                            .foregroundStyle(Color.msNutrition.opacity(0.6))
+                        Text("Toca para fotografiar tu plato")
+                            .font(.msCaption)
+                            .foregroundStyle(.msTextSecondary)
                     }
                 }
+            }
+            .overlay {
+                PhotosPicker(selection: $selectedPhoto, matching: .images) {
+                    Color.clear
+                }
+                .accessibilityLabel("Fotografiar plato")
             }
             .onChange(of: selectedPhoto) { _, newItem in
                 Task {
@@ -145,6 +154,33 @@ struct NutritionView: View {
                         foodAnalysis = try? await analyzer.analyzePhoto(image)
                         isLoading = false
                     }
+                }
+            }
+
+            // Botón de CÁMARA DIRECTA (la foto no se guarda en el carrete)
+            if cameraAvailable {
+                Button(action: { showCamera = true }) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "camera.fill")
+                        Text("Hacer foto del plato")
+                    }
+                    .font(.msBodyEmphasized)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 12)
+                    .background(Color.msNutrition)
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
+                }
+                .fullScreenCover(isPresented: $showCamera) {
+                    CameraPicker { image in
+                        capturedImage = image
+                        isLoading = true
+                        Task {
+                            foodAnalysis = try? await analyzer.analyzePhoto(image)
+                            isLoading = false
+                        }
+                    }
+                    .ignoresSafeArea()
                 }
             }
 
@@ -267,10 +303,7 @@ struct NutritionView: View {
             imageData: nil,
             source: .manual
         )
-        modelContext.insert(meal)
-        try? modelContext.save()
-
-        // También a HealthKit para mantener la coherencia
+        // Las comidas se persisten vía HealthKit (MealEntry no es un @Model de SwiftData)
         Task {
             try? await healthKit.logMeal(meal)
             nutritionData = (try? await healthKit.fetchNutritionSummary(for: 7)) ?? []
@@ -364,6 +397,10 @@ struct LabsView: View {
     @State private var isInterpreting = false
     @State private var isImportingPDF = false
     @State private var importedPDF: PDFDocument?
+    @State private var showCamera = false
+    @State private var cameraAvailable = UIImagePickerController.isSourceTypeAvailable(.camera)
+    @State private var labStore = LabHistoryStore.shared
+    @State private var selectedMarker = ""
 
     var body: some View {
         ScrollView {
@@ -391,12 +428,34 @@ struct LabsView: View {
                     )
                 }
 
+                // MARK: Comparativa longitudinal de biomarcadores
+                evolutionSection
+
                 Spacer(minLength: 100)
             }
             .padding(.horizontal, 20)
             .padding(.top, 16)
         }
         .scrollIndicators(.hidden)
+        .onAppear {
+            if selectedMarker.isEmpty, let first = labStore.markerNames.first {
+                selectedMarker = first
+            }
+        }
+        .onChange(of: labStore.markerNames) { _, names in
+            if selectedMarker.isEmpty, let first = names.first {
+                selectedMarker = first
+            }
+        }
+        // Toda analítica escaneada o importada se añade al historial persistente.
+        // Se observa el id (Equatable) porque LabResult no conforma a Equatable.
+        .onChange(of: scannedResult?.id) { _, _ in
+            guard let result = scannedResult else { return }
+            labStore.add(result)
+            // Haptic de confirmación al extraer los marcadores
+            let impact = UINotificationFeedbackGenerator()
+            impact.notificationOccurred(.success)
+        }
     }
 
     private var scanCard: some View {
@@ -449,6 +508,30 @@ struct LabsView: View {
                 }
             }
 
+            // Botón de CÁMARA DIRECTA (la foto no se guarda en el carrete)
+            if cameraAvailable {
+                Button(action: { showCamera = true }) {
+                    HStack {
+                        Image(systemName: "camera.fill")
+                        Text("Hacer foto ahora")
+                    }
+                    .font(.msBodyEmphasized)
+                    .foregroundStyle(.white)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(Color.msLabs)
+                    .clipShape(RoundedRectangle(cornerRadius: 14))
+                }
+                .fullScreenCover(isPresented: $showCamera) {
+                    CameraPicker { image in
+                        Task {
+                            scannedResult = try? await scanner.scanPhoto(image)
+                        }
+                    }
+                    .ignoresSafeArea()
+                }
+            }
+
             // Botón alternativo: importar PDF de analítica
             Button(action: { isImportingPDF = true }) {
                 HStack {
@@ -493,6 +576,92 @@ struct LabsView: View {
         }
         .padding(16)
         .glassCard()
+    }
+
+    // MARK: - Comparativa longitudinal de biomarcadores
+
+    /// Aparece cuando hay al menos 2 analíticas con un marcador compartido.
+    @ViewBuilder
+    private var evolutionSection: some View {
+        let names = labStore.markerNames
+        if names.count > 1 {
+            VStack(alignment: .leading, spacing: 14) {
+                HStack {
+                    Image(systemName: "chart.xyaxis.line")
+                        .foregroundStyle(.msLabs)
+                    Text("Evolución de marcadores")
+                        .font(.msHeadline)
+                        .foregroundStyle(.msTextPrimary)
+                    Spacer()
+                    Text("\(labStore.results.count) analíticas")
+                        .font(.msCaption)
+                        .foregroundStyle(.msTextTertiary)
+                }
+
+                Text("Compara el mismo biomarcador entre tus analíticas a lo largo del tiempo.")
+                    .font(.msBody)
+                    .foregroundStyle(.msTextSecondary)
+
+                Picker("Biomarcador", selection: $selectedMarker) {
+                    ForEach(names, id: \.self) { name in
+                        Text(name).tag(name)
+                    }
+                }
+                .pickerStyle(.menu)
+
+                markerEvolutionChart(series: labStore.series(for: selectedMarker))
+            }
+            .padding(16)
+            .glassCard()
+        }
+    }
+
+    private func markerEvolutionChart(series: [LabHistoryStore.MarkerPoint]) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Chart(series, id: \.id) { point in
+                // Banda de referencia (rango del laboratorio) en línea discontinua
+                if let min = point.referenceMin {
+                    RuleMark(y: .value("Ref. mín", min))
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [4]))
+                        .foregroundStyle(.msTextTertiary)
+                }
+                if let max = point.referenceMax {
+                    RuleMark(y: .value("Ref. máx", max))
+                        .lineStyle(StrokeStyle(lineWidth: 1, dash: [4]))
+                        .foregroundStyle(.msTextTertiary)
+                }
+                LineMark(
+                    x: .value("Fecha", point.date),
+                    y: .value("Valor", point.value)
+                )
+                .foregroundStyle(.msLabs)
+                .interpolationMethod(.catmullRom)
+
+                PointMark(
+                    x: .value("Fecha", point.date),
+                    y: .value("Valor", point.value)
+                )
+                .foregroundStyle(point.isInRange ? .msGood : .msDanger)
+            }
+            .chartYAxisLabel(series.first?.unit ?? "")
+            .frame(height: 200)
+
+            // Lista de valores (la más reciente primero)
+            ForEach(series.reversed()) { point in
+                HStack {
+                    Text(point.date.formatted(date: .abbreviated, time: .omitted))
+                        .font(.msCaption)
+                        .foregroundStyle(.msTextSecondary)
+                    Spacer()
+                    Text(String(format: "%.1f", point.value))
+                        .font(.msBodyEmphasized)
+                        .foregroundStyle(.msTextPrimary)
+                    Image(systemName: point.isInRange ? "checkmark.circle.fill" : "exclamationmark.triangle.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(point.isInRange ? .msGood : .msDanger)
+                }
+            }
+        }
     }
 
     private func labResultCard(_ result: LabResult) -> some View {

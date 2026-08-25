@@ -212,7 +212,7 @@ final class MedicalReportExporter {
             let statusAttr: [NSAttributedString.Key: Any] = [.font: UIFont.boldSystemFont(ofSize: 7.5), .foregroundColor: statusColor]
 
             marker.name.draw(at: CGPoint(x: colX[0], y: y), withAttributes: rowAttr)
-            "\(marker.value, specifier: "%.1f") \(marker.unit)".draw(at: CGPoint(x: colX[1], y: y), withAttributes: rowAttr)
+            "\(String(format: "%.1f", marker.value)) \(marker.unit)".draw(at: CGPoint(x: colX[1], y: y), withAttributes: rowAttr)
             "\(marker.referenceMin ?? 0) - \(marker.referenceMax ?? 0) \(marker.unit)".draw(at: CGPoint(x: colX[2], y: y), withAttributes: rowAttr)
             statusText.draw(at: CGPoint(x: colX[3], y: y), withAttributes: statusAttr)
             y += 10

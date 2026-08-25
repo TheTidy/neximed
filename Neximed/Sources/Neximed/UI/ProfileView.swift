@@ -17,6 +17,7 @@ struct ProfileView: View {
     @State private var showShareSheet = false
     @State private var showMedicationSheet = false
     @State private var showRemindersSheet = false
+    @State private var showDoctorVisitsSheet = false
 
     var body: some View {
         ScrollView {
@@ -37,6 +38,7 @@ struct ProfileView: View {
                     languageSection
                     emergencySection(profile)
                     medicationSection
+                    doctorVisitsSection
                     remindersSection
                     dataExportSection
                 } else {
@@ -61,6 +63,9 @@ struct ProfileView: View {
         }
         .sheet(isPresented: $showRemindersSheet) {
             RemindersView()
+        }
+        .sheet(isPresented: $showDoctorVisitsSheet) {
+            DoctorVisitsView()
         }
     }
 
@@ -503,6 +508,38 @@ struct ProfileView: View {
                         .font(.msBodyEmphasized)
                         .foregroundStyle(.msTextPrimary)
                     Text("Medicación, tomas y entender tu diagnóstico")
+                        .font(.msCaption)
+                        .foregroundStyle(.msTextSecondary)
+                }
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.system(size: 13, weight: .semibold))
+                    .foregroundStyle(.msTextTertiary)
+            }
+            .padding(14)
+            .background(Color.msSurface)
+            .clipShape(RoundedRectangle(cornerRadius: 14))
+        }
+        .buttonStyle(.plain)
+    }
+
+    // MARK: - Diario médico (Post-Consulta)
+
+    private var doctorVisitsSection: some View {
+        Button { showDoctorVisitsSheet = true } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "stethoscope")
+                    .font(.system(size: 18, weight: .semibold))
+                    .foregroundStyle(.msSleep)
+                    .frame(width: 36, height: 36)
+                    .background(Color.msSleep.opacity(0.15))
+                    .clipShape(RoundedRectangle(cornerRadius: 10))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("Diario médico")
+                        .font(.msBodyEmphasized)
+                        .foregroundStyle(.msTextPrimary)
+                    Text("Visitas, pautas del doctor y próxima revisión")
                         .font(.msCaption)
                         .foregroundStyle(.msTextSecondary)
                 }

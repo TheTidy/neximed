@@ -3,6 +3,7 @@
 
 import SwiftUI
 import SwiftData
+import UIKit
 
 struct ContentView: View {
 
@@ -10,8 +11,10 @@ struct ContentView: View {
     @State private var agent = HealthAgent.shared
     @State private var security = SecurityManager.shared
     @Environment(\.scenePhase) private var scenePhase
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var selectedTab: AppTab = .dashboard
     @State private var showOnboarding = false
+    @State private var showDictationFromSiri = false
 
     @Query private var profiles: [UserProfile]
     var currentProfile: UserProfile? { profiles.first }
@@ -67,12 +70,13 @@ struct ContentView: View {
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .transition(.opacity)
-            .id(selectedTab)  // reinicia el estado al cambiar de pestaña
-
-            // TabBar personalizada
-            CustomTabBar(selectedTab: $selectedTab)
         }
         .preferredColorScheme(.dark)
+        // La TabBar se integra con safeAreaInset: el contenido se desplaza
+        // automáticamente y NUNCA queda tapado por la barra inferior.
+        .safeAreaInset(edge: .bottom, spacing: 0) {
+            CustomTabBar(selectedTab: $selectedTab)
+        }
         .task {
             // La autorización y precarga de HealthKit ya las hizo AppBootstrapper
             // durante el splash. Aquí solo aseguramos la sesión del agente con
@@ -83,6 +87,16 @@ struct ContentView: View {
             if profiles.isEmpty {
                 showOnboarding = true
             }
+            checkSiriDictationSignal()
+        }
+        // "Oye Siri, anota un síntoma": al volver a primer plano se revisa la señal
+        .onChange(of: scenePhase) { _, newPhase in
+            if newPhase == .active {
+                checkSiriDictationSignal()
+            }
+        }
+        .sheet(isPresented: $showDictationFromSiri) {
+            VoiceDictationSheet(category: .symptom) { _ in }
         }
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingView()
@@ -112,12 +126,24 @@ struct ContentView: View {
         }
         .animation(.msEase, value: security.isLocked)
     }
+
+    /// Si un intent de Siri pidió dictar un síntoma, abre la hoja de dictado.
+    /// La señal se consume una sola vez y no se muestra si la app está bloqueada.
+    private func checkSiriDictationSignal() {
+        guard !security.isLocked else { return }
+        let defaults = UserDefaults.standard
+        if defaults.bool(forKey: NeximedLaunchAction.dictateSymptomKey) {
+            defaults.set(false, forKey: NeximedLaunchAction.dictateSymptomKey)
+            showDictationFromSiri = true
+        }
+    }
 }
 
 // MARK: - TabBar Personalizada
 
 struct CustomTabBar: View {
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Binding var selectedTab: ContentView.AppTab
 
     var body: some View {
@@ -127,7 +153,8 @@ struct CustomTabBar: View {
                     tab: tab,
                     isSelected: selectedTab == tab,
                     onTap: {
-                        withAnimation(.msSpring) {
+                        // Accesibilidad: sin animación de resorte con Reduce Motion
+                        withAnimation(reduceMotion ? nil : .msSpring) {
                             selectedTab = tab
                         }
                         let impact = UIImpactFeedbackGenerator(style: .light)
@@ -148,7 +175,8 @@ struct CustomTabBar: View {
                 .shadow(color: .black.opacity(0.4), radius: 24, x: 0, y: -4)
         )
         .padding(.horizontal, 24)
-        .padding(.bottom, 24)
+        // El espacio inferior lo gestiona safeAreaInset; padding mínimo para el hueco
+        .padding(.bottom, 6)
     }
 }
 
@@ -157,6 +185,7 @@ struct TabBarItem: View {
     let isSelected: Bool
     let onTap: () -> Void
 
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @State private var scale = 1.0
 
     var body: some View {
@@ -187,10 +216,15 @@ struct TabBarItem: View {
             .frame(maxWidth: .infinity)
         }
         .buttonStyle(.plain)
+        // VoiceOver: nombre de la pestaña + estado seleccionado
+        .accessibilityLabel(tab.rawValue)
+        .accessibilityAddTraits(isSelected ? .isSelected : [])
+        .accessibilityHint("Abre la sección \(tab.rawValue)")
         .onChange(of: isSelected) { _, newVal in
             if newVal {
                 scale = 1.2
-                withAnimation(.spring(duration: 0.3, bounce: 0.6)) {
+                // Accesibilidad: sin rebote con Reduce Motion
+                withAnimation(reduceMotion ? nil : .spring(duration: 0.3, bounce: 0.6)) {
                     scale = 1.0
                 }
             }
@@ -337,6 +371,8 @@ struct OnboardingView: View {
     private func createProfile() {
         let profile = UserProfile(name: name.trimmingCharacters(in: .whitespaces))
         modelContext.insert(profile)
+        // PERSISTIR el perfil: sin save() se pierde al cerrar la app
+        try? modelContext.save()
         dismiss()
     }
 }

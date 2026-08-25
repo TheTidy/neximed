@@ -27,8 +27,17 @@ final class HealthAgent {
     private let healthKit = HealthKitManager.shared
 
     #if canImport(FoundationModels)
+    // Almacenada como `Any?` porque una propiedad *stored* no puede llevar
+    // @available (restricción del lenguaje); se expone como computed property
+    // tipada, que sí admite @available, delegando en el respaldo type-erased.
+    @ObservationIgnored
+    private var _session: Any?
+
     @available(iOS 26.0, macOS 26.0, *)
-    private var session: LanguageModelSession?
+    private var session: LanguageModelSession? {
+        get { _session as? LanguageModelSession }
+        set { _session = newValue }
+    }
     #endif
 
     // MARK: - Tipos de resultado (planos, disponibles en todas las versiones)
@@ -140,19 +149,15 @@ final class HealthAgent {
     func startSession(profile: UserProfile?) async {
         #if canImport(FoundationModels)
         if #available(iOS 26.0, macOS 26.0, *) {
-            do {
-                let context = try? await healthKit.buildHealthContext(days: 14)
-                let systemPrompt = buildSystemPrompt(profile: profile, context: context)
+            let context = try? await healthKit.buildHealthContext(days: 14)
+            let systemPrompt = buildSystemPrompt(profile: profile, context: context)
 
-                session = LanguageModelSession(
-                    model: SystemLanguageModel.default,
-                    instructions: Instructions(systemPrompt)
-                )
-                aiAvailable = session != nil
-                return
-            } catch {
-                // Sin sesión: modo básico
-            }
+            session = LanguageModelSession(
+                model: SystemLanguageModel.default,
+                instructions: Instructions(systemPrompt)
+            )
+            aiAvailable = session != nil
+            return
         }
         #endif
         aiAvailable = false
@@ -337,15 +342,10 @@ final class HealthAgent {
     // MARK: - Análisis de foto de comida (macronutrientes estimados)
 
     func analyzeFoodPhoto(_ imageData: Data) async -> FoodAnalysis {
-        // TODO(iOS 26+): adjuntar la imagen al ModelContent del LanguageModelSession
-        // para una estimación visual real. La API de imágenes requiere validación
-        // en Xcode 26; mientras tanto se devuelve un análisis honesto de baja confianza.
-        #if canImport(FoundationModels)
-        if #available(iOS 26.0, macOS 26.0, *) {
-            // Sesión disponible: se podría enviar la imagen. Pendiente de validación
-            // de ModelContentItem.image en el build de tu Mac.
-        }
-        #endif
+        // FoundationModels (confirmado en el SDK de iOS 26.5) es un LLM estrictamente
+        // de texto: Prompt/LanguageModelSession no aceptan imágenes. No hay forma de
+        // enviar `imageData` a la IA on-device de Apple. Este fallback honesto de
+        // confianza 0 es el comportamiento definitivo, no un placeholder.
         return FoodAnalysis(
             description: "Análisis visual con IA no disponible en este dispositivo. Registra los macros manualmente.",
             estimatedCalories: 0,
@@ -546,7 +546,6 @@ final class HealthAgent {
         }
 
         let inRange = markers.filter(\.isInRange).count
-        let outOfRange = markers.filter { !$0.isInRange }.count
 
         var text = "Analítica procesada: \(inRange) de \(markers.count) marcadores dentro del rango de referencia.\n"
 

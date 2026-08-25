@@ -5,6 +5,12 @@ DerivedData/
 xcuserdata/
 *.xcscmblueprint
 .DS_Store
+# Regenerado por xcodegen (project.yml) en cada build — no se versiona,
+# así se evitan conflictos de merge en el .pbxproj (ver plan.md).
+Neximed.xcodeproj/
+
+# Metadatos de Finder generados en volúmenes exFAT/USB (p. ej. este repo en KINGSTON)
+._*
 
 # Swift Package Manager
 .build/
@@ -12,3 +18,5 @@ xcuserdata/
 
 # Temporales
 *.tmp.gitconfig-local
+# Config local de git de este repo (nunca se sube: credenciales/identidad locales)
+.gitconfig-local

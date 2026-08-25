@@ -13,6 +13,7 @@ struct AgentPrompts {
         case english
 
         /// Idioma activo según LanguageManager
+        @MainActor
         static var current: Language {
             LanguageManager.shared.currentLanguage == .spanish ? .spanish : .english
         }

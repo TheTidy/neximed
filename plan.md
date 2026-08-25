@@ -19,10 +19,10 @@
 | Agente IA con fallback determinista | ✅ Hecho | HealthAgent.swift |
 | Dossier PDF 1 página | ✅ Hecho | MedicalReportExporter.swift |
 | Escáner OCR analíticas (25 marcadores) | ✅ Hecho | LabScanner.swift |
-| Análisis de comida (foto + código de barras) | ⚠️ Foto con IA pendiente de validar | FoodAnalyzer.swift |
+| Análisis de comida (foto + código de barras) | ⚠️ Código de barras real; foto con IA no soportada — ver nota | FoodAnalyzer.swift |
 | App Intents Siri | ✅ Hecho | HealthIntents.swift |
-| Proyecto Xcode (XcodeGen) | ✅ Hecho | project.yml |
-| Assets (AppIcon, AccentColor) | ⚠️ Falta generar el PNG 1024 del icono | Assets.xcassets |
+| Proyecto Xcode (XcodeGen) | ✅ Hecho y compila (ver HITO A) | project.yml |
+| Assets (AppIcon, AccentColor) | ✅ Hecho — PNG 1024×1024 presente y configurado | Assets.xcassets |
 | ShareSheet (compartir PDF) | ✅ Hecho | ShareSheet.swift |
 
 **Bloqueantes resueltos en sesión anterior**:
@@ -30,6 +30,11 @@
 - ✅ Fallback de Apple Intelligence (modo básico)
 - ✅ Renombrado MacSalud → Neximed completo
 - ✅ Errores de compilación detectados y corregidos (FoodAnalysis, ShareSheet)
+
+**Bloqueantes resueltos en esta sesión (2026-08-24) — validado con Xcode/xcodebuild reales**:
+- ✅ HITO A completado: `xcodebuild` compila y archiva sin errores (simulador, dispositivo arm64 y archive Release). Ver detalle en QUALITY-AUDIT.md.
+- ✅ Nota de comida por foto con IA: confirmado con el SDK de iOS 26 que `FoundationModels` no expone ninguna API de imagen (`Prompt`/`LanguageModelSession` son solo texto). El fallback de confianza 0 es el comportamiento correcto y definitivo, no un TODO pendiente de validar.
+- ✅ `UIRequiresFullScreen` corregido a `true` (evita warning/posible rechazo de validación en App Store Connect, dado que la app es solo portrait/iPhone).
 
 ---
 
@@ -41,15 +46,17 @@
 
 | # | Tarea | Tiempo | Depende de |
 |---|-------|--------|-----------|
-| A1 | Instalar XcodeGen: brew install xcodegen | 10 min | Mac con brew |
-| A2 | Generar proyecto: xcodegen generate | 5 min | A1 |
-| A3 | Abrir Neximed.xcodeproj, seleccionar Team de firma | 10 min | A2 + cuenta Apple |
-| A4 | Compilar ⌘B y resolver errores del compilador real | 2-4 h | A3 |
-| A5 | Validar puntos abiertos de IA (sección 8 de AI-ARCHITECTURE.md) | 2-3 h | A4 |
-| A6 | Probar en iPhone físico: HealthKit, dictado, OCR, PDF | 3-4 h | A5 |
-| A7 | Probar en iPhone sin Apple Intelligence (modo básico) | 1-2 h | A6 |
+| A1 | Instalar XcodeGen: brew install xcodegen | 10 min | Mac con brew | ✅ Hecho |
+| A2 | Generar proyecto: xcodegen generate | 5 min | A1 | ✅ Hecho |
+| A3 | Abrir Neximed.xcodeproj, seleccionar Team de firma | 10 min | A2 + cuenta Apple | ⬜ Pendiente (requiere cuenta de desarrollador, ver B1) |
+| A4 | Compilar ⌘B y resolver errores del compilador real | 2-4 h | A3 | ✅ Hecho (2026-08-24): ~25 errores de compilación reales corregidos (comas y sintaxis en FoodDatabase, APIs de HealthKit no-opcionales, Sendable/concurrencia Swift 6 en HealthAgent/VoiceDictationManager/HealthIntents/ScreenTimeManager, ModelConfiguration inventado en NeximedApp, `.msX` shorthand en ShapeStyle, `MedicationType` sin CaseIterable, punto y coma sueltos en 3 vistas, etc. Detalle en QUALITY-AUDIT.md) |
+| A5 | Validar puntos abiertos de IA (sección 8 de AI-ARCHITECTURE.md) | 2-3 h | A4 | ✅ Hecho — confirmado con el SDK de iOS 26: FoundationModels no tiene API de imagen; ver AI-ARCHITECTURE.md §8 |
+| A6 | Probar en iPhone físico: HealthKit, dictado, OCR, PDF | 3-4 h | A5 | ⬜ Pendiente — requiere dispositivo físico y firma con cuenta Apple (no disponible en este entorno) |
+| A7 | Probar en iPhone sin Apple Intelligence (modo básico) | 1-2 h | A6 | ⬜ Pendiente — igual que A6 |
 
 **Criterio de aceptación**: la app se instala y completa el flujo completo (HealthKit → dictado → dossier → compartir) sin crashes en 2 dispositivos.
+
+**Estado real (2026-08-24)**: `xcodebuild` compila y **archiva** (Release, sin firma) sin errores para simulador y dispositivo arm64. Esto es la primera vez que el proyecto compila de verdad — las sesiones anteriores documentaban ✅ Hecho sin haber ejecutado nunca un build real. Falta únicamente la parte que requiere hardware/cuenta Apple: firmar con un Team, instalar en un iPhone físico y probar el flujo end-to-end (A3, A6, A7).
 
 ---
 

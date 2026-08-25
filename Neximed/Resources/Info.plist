@@ -2,57 +2,74 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <!-- Nombre de la app -->
-    <key>CFBundleName</key>
-    <string>Neximed</string>
-    <key>CFBundleDisplayName</key>
-    <string>Neximed</string>
-    <key>CFBundleIdentifier</key>
-    <string>com.neximed.app</string>
-    <key>CFBundleVersion</key>
-    <string>1</string>
-    <key>CFBundleShortVersionString</key>
-    <string>1.0.0</string>
-
-    <!-- HealthKit -->
-    <key>NSHealthShareUsageDescription</key>
-    <string>Neximed lee tus constantes de Apple Health (FC reposo, HRV, descanso) para estructurarlas en tu dossier médico personal. Todos los datos se procesan únicamente en tu dispositivo.</string>
-    <key>NSHealthUpdateUsageDescription</key>
-    <string>Neximed permite guardar registros de alimentación y parámetros clínicos organizados en Apple Health.</string>
-
-    <!-- Micrófono y Reconocimiento de Voz (Voice-First Engine) -->
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Neximed utiliza el micrófono para que puedas dictar síntomas, notas médicas y preguntas con total comodidad mediante voz.</string>
-    <key>NSSpeechRecognitionUsageDescription</key>
-    <string>Neximed utiliza el reconocimiento de voz en el dispositivo para transcribir y pulir tus notas de salud con IA antes de guardarlas.</string>
-
-    <!-- Cámara y Fotos -->
-    <key>NSCameraUsageDescription</key>
-    <string>Neximed usa la cámara para escanear informes médicos en papel o platos de comida.</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>Neximed permite importar fotos o PDFs de analíticas de laboratorio desde tu biblioteca.</string>
-
-    <!-- Configuración de UI -->
-    <key>UILaunchStoryboardName</key>
-    <string>LaunchScreen</string>
-    <key>UIRequiresFullScreen</key>
-    <false/>
-    <key>UIStatusBarStyle</key>
-    <string>UIStatusBarStyleLightContent</string>
-    <key>UIUserInterfaceStyle</key>
-    <string>Dark</string>
-
-    <!-- Capacidades requeridas -->
-    <key>UIRequiredDeviceCapabilities</key>
-    <array>
-        <string>arm64</string>
-        <string>healthkit</string>
-    </array>
-
-    <!-- Orientaciones soportadas -->
-    <key>UISupportedInterfaceOrientations</key>
-    <array>
-        <string>UIInterfaceOrientationPortrait</string>
-    </array>
+	<key>CFBundleDevelopmentRegion</key>
+	<string>$(DEVELOPMENT_LANGUAGE)</string>
+	<key>CFBundleDisplayName</key>
+	<string>Neximed</string>
+	<key>CFBundleExecutable</key>
+	<string>$(EXECUTABLE_NAME)</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.neximed.app</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleName</key>
+	<string>Neximed</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleShortVersionString</key>
+	<string>1.0.0</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>com.neximed.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>neximed</string>
+			</array>
+		</dict>
+	</array>
+	<key>CFBundleVersion</key>
+	<string>1</string>
+	<key>LSApplicationCategoryType</key>
+	<string>public.app-category.healthcare-fitness</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Neximed usa la cámara para escanear informes médicos en papel o platos de comida.</string>
+	<key>NSHealthShareUsageDescription</key>
+	<string>Neximed lee tus constantes de Apple Health (FC reposo, HRV, descanso) para estructurarlas en tu dossier médico personal. Todos los datos se procesan únicamente en tu dispositivo.</string>
+	<key>NSHealthUpdateUsageDescription</key>
+	<string>Neximed permite guardar registros de alimentación y parámetros clínicos organizados en Apple Health.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Neximed utiliza el micrófono para que puedas dictar síntomas, notas médicas y preguntas con total comodidad mediante voz.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Neximed permite importar fotos o PDFs de analíticas de laboratorio desde tu biblioteca.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Neximed utiliza el reconocimiento de voz en el dispositivo para transcribir y pulir tus notas de salud con IA antes de guardarlas.</string>
+	<key>UILaunchScreen</key>
+	<dict>
+		<key>UIColorName</key>
+		<string>LaunchBackground</string>
+		<key>UIImageName</key>
+		<string>splash-centerpiece</string>
+	</dict>
+	<key>UIRequiredDeviceCapabilities</key>
+	<array>
+		<string>arm64</string>
+		<string>healthkit</string>
+	</array>
+	<key>UIRequiresFullScreen</key>
+	<true/>
+	<key>UIStatusBarStyle</key>
+	<string>UIStatusBarStyleLightContent</string>
+	<key>UISupportedInterfaceOrientations</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+	</array>
+	<key>UIUserInterfaceStyle</key>
+	<string>Dark</string>
 </dict>
 </plist>

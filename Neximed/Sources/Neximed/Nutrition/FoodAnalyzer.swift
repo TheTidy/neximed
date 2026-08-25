@@ -2,7 +2,7 @@
 // Análisis de fotos de comida con Vision + Foundation Models
 // y escáner de códigos de barras para productos envasados
 
-import Vision
+@preconcurrency import Vision
 import CoreImage
 import UIKit
 import Foundation
@@ -39,7 +39,7 @@ final class FoodAnalyzer {
         // Usar Vision para detectar y recortar la región de comida
         return try await withCheckedThrowingContinuation { continuation in
             let request = VNDetectRectanglesRequest { request, error in
-                if let error {
+                if error != nil {
                     // Si falla detección, usar imagen completa
                     continuation.resume(returning: image.jpegData(compressionQuality: 0.8) ?? Data())
                     return
@@ -254,7 +254,7 @@ final class NutritionLabelParser {
 
 // MARK: - Servicio de base de datos de alimentos
 
-final class FoodDatabaseService {
+final class FoodDatabaseService: Sendable {
     static let shared = FoodDatabaseService()
 
     // En producción: Open Food Facts API local o SQLite embedded

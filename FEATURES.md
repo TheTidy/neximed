@@ -44,6 +44,96 @@
 
 ---
 
+## 🆕 Funciones añadidas (sesión 2026-08-24)
+
+### Recordatorio de cita médica funcional
+- RemindersView → "Próxima cita médica": ahora se programa de verdad.
+  - Toggle activa/desactiva el recordatorio; selector de fecha y hora de la cita.
+  - Cambiar la fecha con el recordatorio activo reprograma la notificación al instante.
+  - Notificación única el día de la cita (sugiere preparar el dossier).
+  - NotificationManager.scheduleOneShot ahora marca el tipo como activo (antes el toggle
+    aparecía apagado aunque hubiera una cita programada) y expone storedAppointmentDate().
+
+### Siri: "Oye Siri, anota un síntoma" (App Intent de dictado)
+- Nuevo intent LogSymptomIntent (HealthIntents.swift) con openAppWhenRun = true:
+  - Frases: "Anota un síntoma en Neximed", "Dictar un síntoma con Neximed", "Registrar un síntoma en Neximed".
+  - Al invocarlo, la app abre la hoja de dictado de voz directamente (señal vía UserDefaults,
+    consumida por ContentView al arrancar o al volver a primer plano; respeta el bloqueo biométrico).
+
+### Diario Post-Consulta (Hito E1)
+- Nueva pantalla DoctorVisitsView (acceso desde Perfil → "Diario médico"):
+  - Registro de consultas: especialidad, médico, centro, fecha, motivos, pautas del doctor.
+  - Próxima revisión con recordatorio: al guardar una visita con fecha de revisión,
+    se programa la notificación "Próxima cita médica" (NotificationManager.scheduleOneShot).
+  - Detalle de consulta: editar la fecha de revisión (reprograma al instante),
+    activar/desactivar el recordatorio y eliminar la consulta.
+  - Usa los assets illustration-dossier (cabecera y empty state) y background-global (fondo).
+
+### Deep-link del dossier (Hito D4)
+- Esquema de URL neximed:// (registrado en Info.plist y project.yml).
+- neximed://dossier → al abrir la app genera el PDF del dossier y abre el ShareSheet
+  automáticamente (señal vía UserDefaults, consumida por DashboardView tras cargar datos).
+
+### Comparativa longitudinal de analíticas
+- Nuevo LabHistoryStore (Labs/LabHistoryStore.swift): persistencia 100% on-device del
+  historial de analíticas (JSON en UserDefaults, sin imágenes para mantener el almacén ligero).
+- Toda analítica escaneada o importada se guarda automáticamente (sin duplicados por id).
+- LabsView → nueva sección "Evolución de marcadores" (aparece con 2+ analíticas):
+  - Selector de biomarcador (los presentes en el historial).
+  - Gráfica Swift Charts: línea + puntos (verde en rango / rojo fuera), con banda de
+    referencia del laboratorio en línea discontinua (RuleMark).
+  - Lista de valores cronológica con estado (en rango / fuera).
+
+---
+
+## 🆕 Accesibilidad y tests (sesión 2026-08-24)
+
+### Accesibilidad (VoiceOver, Dynamic Type, Reduce Motion)
+- **Dynamic Type**: el sistema de diseño usa ahora estilos SEMÁNTICOS
+  (Font.system(.largeTitle/.title2/.headline/.callout/.caption, design: .rounded)),
+  que escalan con la configuración de letra del usuario (antes eran tamaños
+  fijos que iOS no escala).
+- **Reduce Motion**: el PulseModifier y la animación de la tab bar se desactivan
+  con accessibilityReduceMotion.
+- **VoiceOver**: etiquetas y pistas de accesibilidad en la tab bar (con estado
+  seleccionado) y en los botones de acción del Dashboard (Dictar, Dossier, Check-in).
+
+### Modo Demo (solo DEBUG)
+- DemoDataSeeder (Bootstrap/DemoDataSeeder.swift): rellena datos ficticios realistas
+  la PRIMERA vez que la app arranca en DEBUG (simulador): perfil completo, 10 semanas
+  de peso, síntomas, check-ins, botiquín (2 medicamentos), 2 visitas médicas y 3
+  analíticas históricas (para la comparativa longitudinal).
+- Solo se siembra si no existe un perfil real; nunca en Release. Para repetir:
+  borrar la app o el flag neximed.demoSeeded.
+
+### Haptics
+- Confirmación háptica al guardar dictado (éxito), al registrar una toma
+  (éxito/aviso) y al extraer marcadores de una analítica escaneada (éxito).
+
+### Warnings resueltos
+- @preconcurrency import Vision (FoodAnalyzer, LabScanner) y UserNotifications.
+- error != nil en FoodAnalyzer (variable sin usar), var date -> let (MedicationDetailView).
+- capturedImage: el PhotosPicker ya no lee estado MainActor desde el closure del label.
+- Quedan 3 warnings documentados de nonisolated(unsafe) en VoiceDictationManager:
+  falso positivo de Swift 6.2 con @Observable (la alternativa que sugiere el
+  compilador no compila; quitarlo rompe el acceso desde deinit/hilo de audio).
+
+### SWIFT_STRICT_CONCURRENCY = complete
+- Migrado de minimal a complete: el proyecto compila y los tests pasan con la
+  concurrencia estricta completa (singletons @MainActor, @preconcurrency en
+  Vision/UserNotifications, nonisolated(unsafe) solo donde el hilo de audio lo exige).
+
+### Tests unitarios (nuevo target NeximedTests)
+- Nuevo target de tests XCTest (NeximedTests) con cobertura de la lógica pura:
+  - CorrelationAnalyzer.pearson: correlación perfecta (±1), series constantes, vacías y desiguales.
+  - LabHistoryStore: nombres de marcadores sin duplicados, serie cronológica,
+    sin duplicados por id, persistencia (load) y estado en/fuera de rango.
+  - WellnessRecommendations: recomendación de descanso bajo el objetivo, ninguna
+    al cumplirlo, y sin recomendaciones con datos vacíos.
+- Ejecución: xcodebuild test (simulador) — TEST BUILD SUCCEEDED.
+
+---
+
 ## 📊 Datos que recopila y calcula
 
 ### De HealthKit (Apple Watch / iPhone)

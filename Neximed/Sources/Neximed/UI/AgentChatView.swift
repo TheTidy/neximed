@@ -261,6 +261,7 @@ struct AgentChatView: View {
         // Guardar mensaje del usuario
         let userMsg = ChatMessage(role: .user, content: text)
         modelContext.insert(userMsg)
+        try? modelContext.save()
 
         Task {
             // Obtener respuesta del agente
@@ -280,6 +281,7 @@ struct AgentChatView: View {
             await MainActor.run {
                 let agentMsg = ChatMessage(role: .agent, content: response)
                 modelContext.insert(agentMsg)
+                try? modelContext.save()
             }
         }
     }

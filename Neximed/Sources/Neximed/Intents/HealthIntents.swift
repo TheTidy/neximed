@@ -5,14 +5,25 @@ import AppIntents
 import HealthKit
 import Foundation
 
+// MARK: - Señales de lanzamiento (App Intents -> App)
+
+/// Claves de UserDefaults que los intents usan para comunicar a la app
+/// qué acción debe abrir al arrancar (openAppWhenRun).
+enum NeximedLaunchAction {
+    /// El intent de dictado pide abrir la hoja de dictado de síntomas al arrancar
+    static let dictateSymptomKey = "neximed.launch.dictateSymptom"
+    /// El deep-link neximed://dossier pide generar y compartir el dossier al abrir
+    static let dossierKey = "neximed.launch.dossier"
+}
+
 // MARK: - Intent: Consultar estado de salud
 
 struct QueryHealthStatusIntent: AppIntent {
 
-    static var title: LocalizedStringResource = "Consultar estado de salud"
-    static var description = IntentDescription("Pregunta al agente Neximed sobre tu estado de salud")
+    static let title: LocalizedStringResource = "Consultar estado de salud"
+    static let description = IntentDescription("Pregunta al agente Neximed sobre tu estado de salud")
 
-    static var openAppWhenRun = false
+    static let openAppWhenRun = false
 
     @Parameter(title: "Pregunta", description: "¿Qué quieres saber sobre tu salud?")
     var question: String
@@ -28,16 +39,16 @@ struct QueryHealthStatusIntent: AppIntent {
 
 struct LogMealIntent: AppIntent {
 
-    static var title: LocalizedStringResource = "Registrar comida"
-    static var description = IntentDescription("Registra una comida en Neximed y Apple Health")
+    static let title: LocalizedStringResource = "Registrar comida"
+    static let description = IntentDescription("Registra una comida en Neximed y Apple Health")
 
     @Parameter(title: "Nombre del alimento o comida")
     var mealName: String
 
-    @Parameter(title: "Calorías (aproximadas)", defaultValue: 0)
+    @Parameter(title: "Calorías (aproximadas)", default: 0.0)
     var calories: Double
 
-    @Parameter(title: "Proteínas en gramos", defaultValue: 0)
+    @Parameter(title: "Proteínas en gramos", default: 0.0)
     var protein: Double
 
     @MainActor
@@ -62,10 +73,10 @@ struct LogMealIntent: AppIntent {
 
 struct DailySummaryIntent: AppIntent {
 
-    static var title: LocalizedStringResource = "Resumen de salud de hoy"
-    static var description = IntentDescription("Obtén un resumen de tu salud del día de parte del agente Neximed")
+    static let title: LocalizedStringResource = "Resumen de salud de hoy"
+    static let description = IntentDescription("Obtén un resumen de tu salud del día de parte del agente Neximed")
 
-    static var openAppWhenRun = false
+    static let openAppWhenRun = false
 
     @MainActor
     func perform() async throws -> some IntentResult & ReturnsValue<String> {
@@ -80,10 +91,10 @@ struct DailySummaryIntent: AppIntent {
 
 struct SleepAnalysisIntent: AppIntent {
 
-    static var title: LocalizedStringResource = "Analizar sueño"
-    static var description = IntentDescription("Analiza la calidad de tu sueño de anoche")
+    static let title: LocalizedStringResource = "Analizar sueño"
+    static let description = IntentDescription("Analiza la calidad de tu sueño de anoche")
 
-    static var openAppWhenRun = false
+    static let openAppWhenRun = false
 
     @MainActor
     func perform() async throws -> some IntentResult & ReturnsValue<String> {
@@ -91,6 +102,23 @@ struct SleepAnalysisIntent: AppIntent {
             "Analiza mi sueño de anoche y la semana pasada. ¿Cómo ha sido? ¿Qué podría mejorar?"
         )
         return .result(value: analysis)
+    }
+}
+
+// MARK: - Intent: Dictar un síntoma por voz (abre la app y arranca el dictado)
+
+struct LogSymptomIntent: AppIntent {
+
+    static let title: LocalizedStringResource = "Anotar un síntoma"
+    static let description = IntentDescription("Abre Neximed para dictar un síntoma con tu voz")
+
+    static let openAppWhenRun = true
+
+    @MainActor
+    func perform() async throws -> some IntentResult & ProvidesDialog {
+        // Señal para que la app abra el dictado automáticamente al arrancar
+        UserDefaults.standard.set(true, forKey: NeximedLaunchAction.dictateSymptomKey)
+        return .result(dialog: "Abriendo Neximed para dictar tu síntoma…")
     }
 }
 
@@ -129,6 +157,17 @@ struct NeximedShortcuts: AppShortcutsProvider {
             ],
             shortTitle: "Registrar comida",
             systemImageName: "fork.knife"
+        )
+
+        AppShortcut(
+            intent: LogSymptomIntent(),
+            phrases: [
+                "Anota un síntoma en \(.applicationName)",
+                "Dictar un síntoma con \(.applicationName)",
+                "Registrar un síntoma en \(.applicationName)"
+            ],
+            shortTitle: "Anotar síntoma",
+            systemImageName: "waveform"
         )
     }
 }
